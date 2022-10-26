@@ -68,7 +68,6 @@ sphinx-rtd-theme = {version="*", optional = true}
 sphinx_gallery = {version=">=0.8.2,<0.11", optional = true}
 jinja2 = {version="*", optional = true}
 myst-parser = {version="*", optional = true}
-pandoc = {version="*", optional = true}
 
 pytest = {version="*", optional = true}
 pytest-cov = {version="*", optional = true}

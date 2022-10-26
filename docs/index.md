@@ -15,7 +15,7 @@
    :caption: Contents:
 ```
 
-**scSLAT** package implements the **SLAT** (**S**patial **L**inked **A**lignment **T**ool) model, which aims to align single cell spatial data fast and accurate. scSLAT can extend to large dataset and various omics data easily.
+**scSLAT** package implements the **SLAT** (**S**patially-**L**inked **A**lignment **T**ool) model, which aims to align single cell spatial data fast and accurate. scSLAT can extend to large dataset and various omics data easily.
 
 ```{eval-rst}
 .. image:: _static/Model.png
@@ -24,12 +24,12 @@
 ```
 
 ## Key applications of scSLAT
-- Accurately align large (20,000+) single cell spatial data in few **seconds**.
+- Accurately align large (100,000+) single cell spatial data in few **seconds**.
 - Align **multi-platform**(such as Stereo-seq and MERFISH) and **multi-modalities** (such as ATAC and RNA) single cell spatial data.
 - Revealing spatial-temporal changes by time-series developmental spatial data alignment.
 
 ## Manuscript
-Please see our manuscript [Xia et al., 2022] at [*Biorxiv*](https://biorxiv.org) to learn more.
+Preparing
 
 ## Getting started with scSLAT
 To get started with ``scSLAT``, check out our {doc}`installation guide <install>` and {doc}`tutorials <tutorials>`.

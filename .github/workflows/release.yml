@@ -18,10 +18,10 @@ jobs:
         python-version: '3.8'
   
     - name: Install dependencies
-      run:
+      run: |
         curl -sSL https://install.python-poetry.org | python3 -
         pip install --upgrade pip
-        pip install -e ".[cpu,docs]" 
+        pip install -e ".[cpu,docs]"
     
     - name: Build package
       run: |

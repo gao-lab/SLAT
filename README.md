@@ -2,9 +2,9 @@
 [![dev-badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/xiachenrui/bc835db052fde5bd731a09270b42006c/raw/version.json)](https://gist.github.com/xiachenrui/bc835db052fde5bd731a09270b42006c)
 [![build-badge](https://github.com/gao-lab/SLAT/actions/workflows/build.yml/badge.svg)](https://github.com/gao-lab/SLAT/actions/workflows/build.yml)
 [![license-badge](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![docs-badge](https://readthedocs.org/projects/slat/badge/?version=latest)](https://salt.readthedocs.io/en/latest/?badge=latest)
 <!-- [![pypi-badge](https://img.shields.io/pypi/v/<name>)](https://pypi.org/project/<name>) -->
 <!-- [![conda-badge](https://anaconda.org/bioconda/<name>/badges/version.svg)](https://anaconda.org/bioconda/<name>) -->
-<!-- [![docs-badge](https://readthedocs.org/projects/<name>/badge/?version=latest)](https://<name>.readthedocs.io/en/latest/?badge=latest) -->
 
 # scSLAT: single cell spatial alignment tools
 
@@ -29,7 +29,7 @@
 ```
 
 ## Tutorial
-Tutorial of `scSLAT` is [here](TBD), if you have any question please open an issue on github
+Tutorial of `scSLAT` is [here](https://slat.readthedocs.io/en/latest/), if you have any question please open an issue on github
 
 ## Installation
 ### Install from PyPI

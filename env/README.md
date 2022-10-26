@@ -7,7 +7,7 @@ If you want repeat our whole benchmark and evaluation workflow, please configure
 - dill
 - parse
 
-NOTE: Do **NOT** change install order !
+NOTE: Do **NOT** change install order !, you can see `env/envrionment.yml` for more details.
 ```
 mamba create -p ./conda python==3.8 -y && conda activate ./conda
 mamba install pytorch=1.11.0 torchvision torchaudio cudatoolkit=11.3 -c pytorch -y

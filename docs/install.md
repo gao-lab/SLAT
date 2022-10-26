@@ -22,7 +22,7 @@ However, if you only want to run on CPU, you can directly install CPU version:
 pip install scSLAT[cpu]
 ```
 ## Docker container
-Dockerfile of `scSLAT` is available at [`env/Dockerfile`](env/Dockerfile)
+Dockerfile of `scSLAT` is available at [`env/Dockerfile`](https://github.com/gao-lab/SLAT/blob/main/env/Dockerfile)
 
 ## Install from Conda (Ongoing)
-We plan to provide a conda package of `scSLAT` in the near future.
+We plan to provide a conda package of `scSLAT` in the future.
