@@ -1,0 +1,15 @@
+__default__:
+  jobname: "SLAT-{rule}"
+  output: ".slurm/{rule}.out"
+  error: ".slurm/{rule}.err"
+  account: bitcap
+  partition: gpu32
+  gres: ""
+  n_node: 1
+  n_task: 1
+  n_cpu: "{threads}"
+  gres: "--gres=gpu:1"
+
+hyperparam_run_SLAT:
+  partition: gpu32
+  gres: "--gres=gpu:1"

@@ -1,0 +1,4 @@
+.snakemake
+.nv/
+results/
+results_bak/

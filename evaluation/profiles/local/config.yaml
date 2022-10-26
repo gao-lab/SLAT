@@ -1,0 +1,7 @@
+printshellcmds: true
+reason: true
+keep-going: true
+resources: gpu=8
+# use-conda: true
+use-singularity: true
+singularity-args: " --nv"

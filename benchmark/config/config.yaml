@@ -1,0 +1,51 @@
+#---------------------------- Global ----------------------------#
+timeout: 24h
+timehold: 200h
+seed: 8
+sample: 0
+fix_sample: True
+
+use:
+  - benchmark
+  - evaluation
+
+dataset:
+  stereo_mouse_embryo: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S1_filter_labeled.h5ad","../data/stereo_seq/counts/E15.5/count_E15.5_E1S2_filter_labeled.h5ad"]
+  visium_human_DLPFC: ["../data/visium/DLPFC/region_1/151674_labeled.h5ad","../data/visium/DLPFC/region_1/151675_labeled.h5ad"]
+  merfish_mouse_hypothalamic: ["../data/merfish/hypothalamic/merfish_layer1_labeled.h5ad","../data/merfish/hypothalamic/merfish_layer2_labeled.h5ad"]
+
+
+#--------------------------- Data size --------------------------#
+datasize:
+  cells:
+    default: 0
+    # choices: [0]
+    # choices: [0, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400] # for subsample
+    # choices: [4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 50000, 100000] # for runtime
+    choices: [0, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 50000, 100000]
+    
+
+evaluation_size: 0
+
+#--------------------------- Method -----------------------------#
+method:
+  # - PCA
+  - Seurat
+  - Harmony
+  - SLAT
+  - PASTE
+
+
+#--------------------------- Noise -----------------------------#
+noise:
+  - 0
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  - 0.6
+  - 0.7
+  - 0.8
+  - 0.9
+  - 1

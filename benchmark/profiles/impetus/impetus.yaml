@@ -1,0 +1,31 @@
+__default__:
+  jobname: "SLAT-{rule}"
+  output: ".slurm/{rule}.out"
+  error: ".slurm/{rule}.err"
+  account: bitcap
+  partition: gpu32
+  gres: ""
+  n_node: 1
+  n_task: 1
+  n_cpu: "{threads}"
+  gres: "--gres=gpu:1"
+
+data2input:
+  partition: gpu32
+  gres: "--gres=gpu:8"
+
+run_SLAT:
+  partition: gpu32
+  gres: "--gres=gpu:8"
+
+run_PASTE:
+  partition: gpu32
+  gres: "--gres=gpu:8"
+
+run_SLAT_noise:
+  partition: gpu32
+  gres: "--gres=gpu:1"
+
+run_Seurat:
+  partition: gpu32
+  gres: "--gres=gpu:2"

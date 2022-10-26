@@ -1,0 +1,33 @@
+configfile: "config/config.yaml"
+
+from functools import reduce
+from operator import add
+
+base_config = {"dataset": config["dataset"], "timeout": config["timeout"]}
+
+
+targets = {
+    "hyperparam":["results/hyperparam.csv"], 
+    "LGCN":["results/LGCN.csv"]
+}
+
+include: "rules/methods.smk"
+include: "rules/prepare_data.smk"
+
+
+rule all:
+    input:
+        reduce(add, map(lambda x: targets[x], config["use"]))
+
+module hyperparam:
+    snakefile: "hyperparam.smk"
+    config: config
+module LGCN:
+    snakefile: "LGCN.smk"
+    config: config 
+
+use rule * from hyperparam as hyperparam_*
+use rule * from LGCN as LGCN_*
+
+localrules: all
+localrules: link_datas, hyperparam_summarize, LGCN_summarize

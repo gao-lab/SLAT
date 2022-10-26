@@ -1,0 +1,37 @@
+# file
+*.h5ad
+*.h5
+*.fq
+*.pyc
+*.pth
+*.zip
+*.csv
+*.rds
+*.pickle
+*.RData
+*.Rhistory
+*.pdf
+*.pt
+*.tar
+*.dill
+*.log
+*.arrow
+*Weights
+*.sqlite
+
+# folder
+**/conda/
+**/.cache/
+**/.nv/
+**/.ipython/
+**/tensorboard/
+**/tmp/
+**/__pycache__/
+.ipynb_checkpoints/
+.virtual_documents/
+resource/*
+data/*
+
+# exclude
+!data/README.md
+!resource/README.md

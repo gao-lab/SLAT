@@ -1,0 +1,37 @@
+configfile: "config/config.yaml"
+
+from functools import reduce
+from operator import add
+
+targets = {
+    "benchmark":[
+        expand("results/benchmark.csv"), 
+    ],
+    "evaluation":[
+        expand("results/evaluation.csv")
+    ]
+}
+
+localrules: all
+
+rule all:
+    input:
+        reduce(add, map(lambda x: targets[x], config["use"]))
+
+include: "rules/data_prepare.smk"
+include: "rules/methods.smk"
+
+module benchmark:
+    snakefile: "benchmark.smk"
+    config: config
+
+module evaluation:
+    snakefile: "evaluation.smk"
+    config: config 
+
+use rule * from benchmark as benchmark_*
+use rule * from evaluation as evaluation_*
+
+localrules: evaluation_summarize
+localrules: benchmark_summarize
+

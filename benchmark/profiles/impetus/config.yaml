@@ -1,0 +1,9 @@
+cluster: "sbatch -J {cluster.jobname} -A {cluster.account} -p {cluster.partition} -N {cluster.n_node} -n {cluster.n_task} -c {cluster.n_cpu} {cluster.gres} -o {cluster.output} -e {cluster.error}"
+cluster-config: profiles/impetus/impetus.yaml
+printshellcmds: true
+reason: true
+keep-going: true
+resources: gpu=1000
+use-conda: true
+use-singularity: true
+singularity-args: " --nv"
