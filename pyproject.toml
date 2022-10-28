@@ -9,10 +9,11 @@ version = "0.1.0"
 description = "A graph deep learning based tool to align single cell spatial omics data"
 readme = "README.md"
 license = "MIT"
-authors = ["Chen-Rui Xia <xiachenrui@mail.cbi.pku.edu.cn>",]
+authors = ["Chen-Rui Xia <xiachenrui@mail.cbi.pku.edu.cn>"]
 keywords = ["bioinformatics", "graph-deep-learning", "single-cell", "spatial-omics", "alignment"]
+homepage = "https://github.com/gao-lab/SLAT"
+documentation = "https://slat.readthedocs.io/en/latest/"
 repository = "https://github.com/gao-lab/SLAT"
-documentation = "TBD"
 classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
@@ -53,11 +54,11 @@ scikit-misc = "*"
 leidenalg = "*"
 opencv-python = "*"
 
-torch = {url="https://download.pytorch.org/whl/cpu/torch-1.11.0%2Bcpu-cp38-cp38-linux_x86_64.whl", optional = true}
-torch-scatter = {url="https://data.pyg.org/whl/torch-1.11.0%2Bcpu/torch_scatter-2.0.9-cp38-cp38-linux_x86_64.whl", optional = true}
-torch-sparse = {url="https://data.pyg.org/whl/torch-1.11.0%2Bcpu/torch_sparse-0.6.13-cp38-cp38-linux_x86_64.whl", optional = true}
-torch-cluster = {url="https://data.pyg.org/whl/torch-1.11.0%2Bcpu/torch_cluster-1.6.0-cp38-cp38-linux_x86_64.whl", optional = true}
-torch-geometric = {version="*", optional = true}
+torch = {version = "1.11.0", source="torch"}
+torch-scatter = {version = "*", source="pyg"}
+torch-sparse = {version = "*", source="pyg"}
+torch-cluster = {version = "*", source="pyg"}
+torch-geometric = {version = "*", source="pyg"}
 
 sphinx = {version="*", optional = true}
 sphinx-autodoc-typehints = {version="*", optional = true}
@@ -78,10 +79,19 @@ ipython = {version="*", optional = true}
 jupyter = {version="*", optional = true}
 
 [tool.poetry.extras]
-cpu = ["torch", "torch-scatter", "torch-sparse", "torch-cluster", "torch-geometric"]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-copybutton", "sphinx-intl", "nbsphinx", "sphinx-rtd-theme",
         "jinja2", "myst-parser", "pandoc", "ipykernel", "sphinx_gallery"]
 dev = ["pytest", "pytest-cov", "papermill", "snakemake", "ipykernel", "ipython", "jupyter"]
+
+[[tool.poetry.source]]
+name = "torch"
+url = "https://download.pytorch.org/whl/cu113"
+secondary = false
+
+[[tool.poetry.source]]
+name = "pyg"
+url = "https://data.pyg.org/whl/torch-1.11.0%2Bcu113.html"
+secondary = false
 
 [tool.pyright]
 include = ["scSLAT"]
