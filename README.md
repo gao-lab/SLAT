@@ -3,7 +3,9 @@
 [![build-badge](https://github.com/gao-lab/SLAT/actions/workflows/build.yml/badge.svg)](https://github.com/gao-lab/SLAT/actions/workflows/build.yml)
 [![license-badge](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![docs-badge](https://readthedocs.org/projects/slat/badge/?version=latest)](https://salt.readthedocs.io/en/latest/?badge=latest)
+
 <!-- [![pypi-badge](https://img.shields.io/pypi/v/<name>)](https://pypi.org/project/<name>) -->
+
 <!-- [![conda-badge](https://anaconda.org/bioconda/<name>/badges/version.svg)](https://anaconda.org/bioconda/<name>) -->
 
 # scSLAT: single cell spatial alignment tools
@@ -29,33 +31,46 @@
 ```
 
 ## Tutorial
+
 Tutorial of `scSLAT` is [here](https://slat.readthedocs.io/en/latest/), if you have any question please open an issue on github
 
 ## Installation
+
 ### Install from PyPI  (Ongoing)
+
 > Installing `scSLAT` within a new [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) is recommended.
 
 Fist we create a clean environment and install `scSLAT` from PyPI:
+
+> We need install dependency `torch` before install `pyg`.
+
 ```bash
 conda create -n scSLAT python=3.8 -y && conda activate scSLAT
-pip install scSLAT
+pip install scSLAT[torch]
+pip install scSLAT[pyg]
 ```
 
 ### Install from Conda (Ongoing)
+
 We plan to provide a conda package of `scSLAT` in the near future.
 
 ### Development
+
 For development purpose, clone this repo and install:
+
 ```bash
 git clone git@github.com:gao-lab/SLAT.git
 cd SLAT
-pip install -e ".[dev]"
+pip install -e ".[torch]"
+pip install -e ".[pyg,dev,doc]"
 ```
 
 ### Docker container
+
 Dockerfile of `scSLAT` is available at [`env/Dockerfile`](env/Dockerfile)
 
 ## Reproduce results
+
 1. Please follow the [`env/README.md`](env/README.md) to install all dependencies. Please checkout the repository to v0.1.0 before install `scSLAT`:
 
 ```
@@ -64,8 +79,5 @@ pip install -e '.'
 ```
 
 2. Download files via links in [`data/README.md`](data/README.md)
-
-2. Whole benchmark and evaluation procedure can be found in `/benchmark` and `/evaluation`, respectively.
-
-3. Every case study is recorded in the `/case` directory in the form of jupyter notebook.
-
+3. Whole benchmark and evaluation procedure can be found in `/benchmark` and `/evaluation`, respectively.
+4. Every case study is recorded in the `/case` directory in the form of jupyter notebook.

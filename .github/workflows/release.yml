@@ -21,7 +21,8 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         pip install --upgrade pip
-        pip install -e ".[cpu,docs]"
+        pip install -e ".[torch]"
+        pip install -e ".[pyg,docs,dev]"
     
     - name: Build package
       run: |

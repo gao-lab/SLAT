@@ -54,11 +54,11 @@ scikit-misc = "*"
 leidenalg = "*"
 opencv-python = "*"
 
-torch = {version = "1.11.0", source="torch"}
-torch-scatter = {version = "*", source="pyg"}
-torch-sparse = {version = "*", source="pyg"}
-torch-cluster = {version = "*", source="pyg"}
-torch-geometric = {version = "*", source="pyg"}
+torch = {version = "1.11.0", source="torch", optional = true}
+torch-scatter = {version = "*", source="pyg", optional = true}
+torch-sparse = {version = "*", source="pyg", optional = true}
+torch-cluster = {version = "*", source="pyg", optional = true}
+torch-geometric = {version = "*", source="pyg", optional = true}
 
 sphinx = {version="*", optional = true}
 sphinx-autodoc-typehints = {version="*", optional = true}
@@ -79,6 +79,8 @@ ipython = {version="*", optional = true}
 jupyter = {version="*", optional = true}
 
 [tool.poetry.extras]
+torch = ["torch"]
+pyg = ["torch-geometric", "torch-cluster", "torch-sparse", "torch-scatter"]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-copybutton", "sphinx-intl", "nbsphinx", "sphinx-rtd-theme",
         "jinja2", "myst-parser", "pandoc", "ipykernel", "sphinx_gallery"]
 dev = ["pytest", "pytest-cov", "papermill", "snakemake", "ipykernel", "ipython", "jupyter"]
