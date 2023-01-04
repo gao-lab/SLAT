@@ -2,7 +2,7 @@
 [![dev-badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/xiachenrui/bc835db052fde5bd731a09270b42006c/raw/version.json)](https://gist.github.com/xiachenrui/bc835db052fde5bd731a09270b42006c)
 [![build-badge](https://github.com/gao-lab/SLAT/actions/workflows/build.yml/badge.svg)](https://github.com/gao-lab/SLAT/actions/workflows/build.yml)
 [![license-badge](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![docs-badge](https://readthedocs.org/projects/slat/badge/?version=latest)](https://salt.readthedocs.io/en/latest/?badge=latest)
+[![docs-badge](https://readthedocs.org/projects/slat/badge/?version=latest)](https://slat.readthedocs.io/en/latest/?badge=latest)
 
 <!-- [![pypi-badge](https://img.shields.io/pypi/v/<name>)](https://pypi.org/project/<name>) -->
 
@@ -67,7 +67,7 @@ pip install -e ".[pyg,dev,doc]"
 
 ### Docker container
 
-Dockerfile of `scSLAT` is available at [`env/Dockerfile`](env/Dockerfile)
+Dockerfile of `scSLAT` is available at [`env/Dockerfile`](env/Dockerfile), you can also pull the docker image here.
 
 ## Reproduce results
 

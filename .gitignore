@@ -34,4 +34,5 @@ data/*
 
 # exclude
 !data/README.md
+!data/Stereo_process.ipynb
 !resource/README.md
