@@ -39,7 +39,7 @@ Tutorial of `scSLAT` is [here](https://slat.readthedocs.io/en/latest/), if you h
 
 Dockerfile of `scSLAT` is available at [`env/Dockerfile`](env/Dockerfile). You can also pull the docker image from [here](https://hub.docker.com/repository/docker/huhansan666666/slat) by :
 ```
-docker push huhansan666666/slat:latest
+docker pull huhansan666666/slat:latest
 ```
 
 ### Development
