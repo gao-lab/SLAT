@@ -13,6 +13,9 @@ python:
     path: .
     extra_requirements:
     - torch
+  - method: pip
+    path: .
+    extra_requirements:
     - pyg
     - dev
     - docs

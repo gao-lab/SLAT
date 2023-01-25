@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "scSLAT"
 packages = [{include = "scSLAT"}]
-version = "0.1.0"
+version = "0.2.0"
 description = "A graph deep learning based tool to align single cell spatial omics data"
 readme = "README.md"
 license = "MIT"
