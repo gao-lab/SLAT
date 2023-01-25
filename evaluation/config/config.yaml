@@ -5,6 +5,7 @@ sample: 0
 
 use:
   - hyperparam
+  - noise
   # - LGCN
 
 #--------------------------- Dataset ----------------------------#
@@ -16,7 +17,13 @@ dataset:
   # merfish_mouse_hypothalamic: ["../data/merfish/hypothalamic/merfish_layer2_labeled.h5ad",
   #                             "../data/merfish/hypothalamic/merfish_layer1_labeled.h5ad"]
 
-
+noise_dataset:
+  stereo_mouse_embryo: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S1_filter_labeled.h5ad",
+                        "../data/stereo_seq/counts/E15.5/count_E15.5_E1S2_filter_labeled.h5ad"]
+  visium_human_DLPFC: ["../data/visium/DLPFC/region_1/151674_labeled.h5ad",
+                      "../data/visium/DLPFC/region_1/151675_labeled.h5ad"]
+  merfish_mouse_hypothalamic: ["../data/merfish/hypothalamic/merfish_layer2_labeled.h5ad",
+                              "../data/merfish/hypothalamic/merfish_layer1_labeled.h5ad"]
 
 
 #-------------------------- Data size ---------------------------#
@@ -26,21 +33,15 @@ datasize:
     choices: [8000]
 
 
-#------------------------ Graph structure -----------------------#
-spatial_graph:
+#--------------------- SLAT hyperparameters ---------------------#
+SLAT_hyperparam:
   k_neighbors:
     default: 20
-    choices: [20]
-    # choices: [5,10,20,30,40] # for knn
-
-
-#------------------------- Feature embed ------------------------#
-feature_embed:
-  feature_type: ['PCA']
-
-
-#------------------------ Hyperparameter ------------------------#
-hyperparam:
+    # choices: [20]
+    choices: [5,10,20,30,40] # for knn
+  feature_type:
+    default: 'dpca'
+    choices: ['PCA','Harmony','dpca']
   epochs:
     default: 6
     # choices: [6]
@@ -90,6 +91,25 @@ hyperparam:
     # choices: [20]
     choices: [10, 20, 30, 40, 50]
 
-#------------------------ LGCN only -------------------------#
-LGCN_layer: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-smooth: [10, 20, 30, 40, 50]
+#------------------------ LGCN hyperparameters ------------------------#
+LGCN__hyperparam:
+  LGCN_layer: 
+    default: 1
+    choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  smooth:
+    default: 20
+    choices: [10, 20, 30, 40, 50]
+
+#--------------------------- Noise config -----------------------------#
+noise:
+  - 0
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  - 0.6
+  - 0.7
+  - 0.8
+  - 0.9
+  - 1

@@ -1,5 +1,5 @@
 r"""
-Different methods
+Benchmark different methods
 """
 import os
 
@@ -13,6 +13,7 @@ rule get_metrics:
         metric="{path}/{method,PCA|Harmony}/metrics.yaml",
         emb0="{path}/{method,PCA|Harmony}/emb0.csv",
         emb1="{path}/{method,PCA|Harmony}/emb1.csv",
+        matching="{path}/{method,PCA|Harmony}/matching.csv",
     params:
         notebook_result="{path}/{method,PCA|Harmony}/get_metrics.ipynb",
     log:
@@ -27,6 +28,7 @@ rule get_metrics:
         -p metric_file {output.metric} \
         -p emb0_file {output.emb0} \
         -p emb1_file {output.emb1} \
+        -p matching_file {output.matching} \
         {input.notebook} {params.notebook_result} \
         > {log} 2>&1
         """
@@ -41,11 +43,13 @@ rule run_SLAT:
         metric="{path}/SLAT/metrics.yaml",
         emb0="{path}/SLAT/emb0.csv",
         emb1="{path}/SLAT/emb1.csv",
+        graphs="{path}/SLAT/graph.pkl",
+        matching="{path}/SLAT/matching.csv",
     params:
         notebook_result="{path}/SLAT/run_SLAT.ipynb",
     log:
         "{path}/SLAT/run_SLAT.log"
-    threads:8
+    threads:16
     resources: gpu=1
     shell:
         """
@@ -55,6 +59,8 @@ rule run_SLAT:
         -p metric_file {output.metric} \
         -p emb0_file {output.emb0} \
         -p emb1_file {output.emb1} \
+        -p graphs_file {output.graphs} \
+        -p matching_file {output.matching} \
         {input.notebook} {params.notebook_result} \
         > {log} 2>&1
         """
@@ -69,11 +75,12 @@ rule run_SLAT_harmony:
         metric="{path}/SLAT_harmony/metrics.yaml",
         emb0="{path}/SLAT_harmony/emb0.csv",
         emb1="{path}/SLAT_harmony/emb1.csv",
+        matching="{path}/SLAT_harmony/matching.csv",
     params:
         notebook_result="{path}/SLAT_harmony/run_SLAT_harmony.ipynb",
     log:
         "{path}/SLAT_harmony/run_SLAT_harmony.log"
-    threads:8
+    threads:16
     resources: gpu=1
     shell:
         """
@@ -83,6 +90,37 @@ rule run_SLAT_harmony:
         -p metric_file {output.metric} \
         -p emb0_file {output.emb0} \
         -p emb1_file {output.emb1} \
+        -p matching_file {output.matching} \
+        {input.notebook} {params.notebook_result} \
+        > {log} 2>&1
+        """
+
+
+rule run_SLAT_dpca:
+    input:
+        adata1="{path}/adata1.h5ad",
+        adata2="{path}/adata2.h5ad",
+        notebook="workflow/notebooks/run_SLAT_dpca.ipynb",
+    output:
+        metric="{path}/SLAT_dpca/metrics.yaml",
+        emb0="{path}/SLAT_dpca/emb0.csv",
+        emb1="{path}/SLAT_dpca/emb1.csv",
+        matching="{path}/SLAT_dpca/matching.csv",
+    params:
+        notebook_result="{path}/SLAT_dpca/run_SLAT_dpca.ipynb",
+    log:
+        "{path}/SLAT_dpca/run_SLAT_dpca.log"
+    threads:16
+    resources: gpu=1
+    shell:
+        """
+        timeout {config[timeout]} papermill \
+        -p adata1_file {input.adata1} \
+        -p adata2_file {input.adata2} \
+        -p metric_file {output.metric} \
+        -p emb0_file {output.emb0} \
+        -p emb1_file {output.emb1} \
+        -p matching_file {output.matching} \
         {input.notebook} {params.notebook_result} \
         > {log} 2>&1
         """
@@ -97,11 +135,12 @@ rule run_SLAT_without_prematch:
         metric="{path}/SLAT_without_prematch/metrics.yaml",
         emb0="{path}/SLAT_without_prematch/emb0.csv",
         emb1="{path}/SLAT_without_prematch/emb1.csv",
+        matching="{path}/SLAT_without_prematch/matching.csv",
     params:
         notebook_result="{path}/SLAT_without_prematch/run_SLAT_without_prematch.ipynb",
     log:
         "{path}/SLAT_without_prematch/run_SLAT_without_prematch.log"
-    threads:8
+    threads:16
     resources: gpu=1
     shell:
         """
@@ -111,35 +150,7 @@ rule run_SLAT_without_prematch:
         -p metric_file {output.metric} \
         -p emb0_file {output.emb0} \
         -p emb1_file {output.emb1} \
-        {input.notebook} {params.notebook_result} \
-        > {log} 2>&1
-        """
-
-
-rule run_SLAT_noise:
-    input:
-        adata1="{path}/adata1.h5ad",
-        adata2="{path}/adata2.h5ad",
-        notebook="workflow/notebooks/run_SLAT_noise.ipynb",
-    output:
-        metric="{path}/SLAT_noise/nosie:{noise}/metrics.yaml",
-        emb0="{path}/SLAT_noise/nosie:{noise}/emb0.csv",
-        emb1="{path}/SLAT_noise/nosie:{noise}/emb1.csv",
-    params:
-        notebook_result="{path}/SLAT_noise/nosie:{noise}/run_SLAT_noise.ipynb",
-    log:
-        "{path}/SLAT_noise/nosie:{noise}/run_SLAT_noise.log"
-    threads:8
-    resources: gpu=1
-    shell:
-        """
-        timeout {config[timeout]} papermill \
-        -p adata1_file {input.adata1} \
-        -p adata2_file {input.adata2} \
-        -p noise_level {wildcards.noise} \
-        -p metric_file {output.metric} \
-        -p emb0_file {output.emb0} \
-        -p emb1_file {output.emb1} \
+        -p matching_file {output.matching} \
         {input.notebook} {params.notebook_result} \
         > {log} 2>&1
         """
@@ -152,13 +163,14 @@ rule run_PASTE:
         notebook="workflow/notebooks/run_PASTE.ipynb",
     output:
         metric="{path}/PASTE/metrics.yaml",
+        matching="{path}/PASTE/matching.csv",
     params:
         notebook_result="{path}/PASTE/run_PASTE.ipynb",
     log:
         "{path}/PASTE/run_PASTE.log"
     container: 
         "docker://huhansan666666/paste:v0.1"
-    threads:8
+    threads:16
     resources: gpu=1
     shell:
         """
@@ -166,6 +178,7 @@ rule run_PASTE:
         -p adata1_file {input.adata1} \
         -p adata2_file {input.adata2} \
         -p metric_file {output.metric} \
+        -p matching_file {output.matching} \
         {input.notebook} {params.notebook_result} \
         > {log} 2>&1
         """
@@ -177,25 +190,51 @@ rule run_STAGATE:
         adata2="{path}/adata2.h5ad",
         notebook="workflow/notebooks/run_STAGATE.ipynb",
     output:
-        metric="{path}/STAGATE/metrics.yaml",
         emb0="{path}/STAGATE/emb0.csv",
         emb1="{path}/STAGATE/emb1.csv",
     params:
         notebook_result="{path}/STAGATE/run_STAGATE.ipynb",
     container: 
-        "docker://huhansan666666/stagate_pyg:v0.1"
+        "docker://huhansan666666/stagate_pyg:v0.2"
     log:
         "{path}/STAGATE/run_STAGATE.log"
-    threads:8
+    threads:16
     resources: gpu=1
     shell:
         """
         timeout {config[timeout]} papermill \
         -p adata1_file {input.adata1} \
         -p adata2_file {input.adata2} \
-        -p metric_file {output.metric} \
         -p emb0_file {output.emb0} \
         -p emb1_file {output.emb1} \
+        {input.notebook} {params.notebook_result} \
+        > {log} 2>&1
+        """
+
+rule STAGATE_metrics:
+    input:
+        emb0="{path}/STAGATE/emb0.csv",
+        emb1="{path}/STAGATE/emb1.csv",
+        adata1="{path}/adata1.h5ad",
+        adata2="{path}/adata2.h5ad",
+        notebook="workflow/notebooks/emb2metrics.ipynb"
+    output:
+        metric="{path}/STAGATE/metrics.yaml",
+        matching="{path}/STAGATE/matching.csv",
+    params:
+        notebook_result="{path}/STAGATE/emb2metrics.ipynb",
+    log:
+        "{path}/STAGATE/emb2metrics.log"
+    threads:4
+    shell:
+        """
+        papermill\
+        -p emb0_file {input.emb0} \
+        -p emb1_file {input.emb1} \
+        -p adata1_file {input.adata1} \
+        -p adata2_file {input.adata2} \
+        -p metric_file {output.metric} \
+        -p matching_file {output.matching} \
         {input.notebook} {params.notebook_result} \
         > {log} 2>&1
         """
@@ -214,7 +253,7 @@ rule run_Seurat:
         notebook_result="{path}/Seurat/run_Seurat.ipynb",
     log:
         "{path}/Seurat/run_Seurat.log"
-    threads:8
+    threads:16
     shell:
         """
         timeout {config[timeout]} papermill -k slat_r \
@@ -233,13 +272,14 @@ rule Seurat_metrics:
         emb1="{path}/Seurat/emb1.csv",
         adata1="{path}/adata1.h5ad",
         adata2="{path}/adata2.h5ad",
-        notebook="workflow/notebooks/Seurat_metrics.ipynb"
+        notebook="workflow/notebooks/emb2metrics.ipynb"
     output:
         metric="{path}/Seurat/metrics.yaml",
+        matching="{path}/Seurat/matching.csv",
     params:
-        notebook_result="{path}/Seurat/Seurat_metrics.ipynb",
+        notebook_result="{path}/Seurat/emb2metrics.ipynb",
     log:
-        "{path}/Seurat/Seurat_metrics.log"
+        "{path}/Seurat/emb2metrics.log"
     threads:4
     shell:
         """
@@ -249,6 +289,7 @@ rule Seurat_metrics:
         -p adata1_file {input.adata1} \
         -p adata2_file {input.adata2} \
         -p metric_file {output.metric} \
+        -p matching_file {output.matching} \
         {input.notebook} {params.notebook_result} \
         > {log} 2>&1
         """

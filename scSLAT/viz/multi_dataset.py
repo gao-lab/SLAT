@@ -49,12 +49,6 @@ class build_3D():
         subsample size of matches
     scale_coordinate
         scale the coordinate from different slides
-    smooth
-        use spatial info to smooth mapping (experimental)
-    range
-        top K of the mapping which can be smoothed  
-    mapping_rank_list
-        index of the mapping via cos similarity
     """
     def __init__(self,adatas:List[AnnData],
                mappings:List[np.ndarray],
@@ -62,16 +56,8 @@ class build_3D():
                anno_key:Optional[str]='annotation',
                subsample_size:Optional[int]=200,
                scale_coordinate:Optional[bool]=True,
-               smooth:Optional[bool]=False,
-               range:Optional[int]=10,
-               mapping_rank_list:Optional[List[np.ndarray]]=None
         ) -> None:
         assert len(mappings) == len(adatas) - 1
-        self.smooth = smooth
-        if self.smooth:
-            self.range = range
-            assert mapping_rank_list != None
-            self.mapping_rank_list = mapping_rank_list
         
         self.mappings=mappings
         self.loc_list = []
@@ -107,8 +93,14 @@ class build_3D():
             plt figure size
         point_size
             point size of every layer
+        point_alpha
+            point alpha of every layer
         line_width
-            pair line width 
+            pair line width
+        line_color
+            pair line color
+        line_alpha
+            pair line alpha
         hide_axis
             if hide axis
         height
@@ -128,7 +120,6 @@ class build_3D():
             for i, (layer, anno) in enumerate(zip(self.loc_list[j:j+2], self.anno_list[j:j+2])):
                 if i==0 and 0<j<len(self.mappings)-1:
                     continue
-                    # print('test')
                 for cell_type in self.celltypes:
                     slice = layer[anno == cell_type,:]
                     xs = slice[:,0]
@@ -139,45 +130,16 @@ class build_3D():
             mapping = mapping[:,np.random.choice(mapping.shape[1], self.subsample_size, replace=False)].copy()
             for k in range(mapping.shape[1]):
                 cell1_index = mapping[:,k][0]  # query
-                if self.smooth:  # ref list
-                    mapping_rank = self.mapping_rank_list[j][cell1_index,:]
-                    cell0_index = self.smooth_mapping(cell1_index,mapping_rank,j)
-                else:  # precise map
-                    cell0_index = mapping[:,k][1] # ref
+                cell0_index = mapping[:,k][1]  # ref
                 cell0_coord = self.loc_list[j][cell0_index,:]
                 cell1_coord = self.loc_list[j+1][cell1_index,:]
                 coord = np.row_stack((cell0_coord,cell1_coord))
-                ax.plot(coord[:,0], coord[:,1], [height*j,height*(j+1)], color=line_color, linestyle="dashed", linewidth=line_width,alpha=line_alpha)
+                ax.plot(coord[:,0], coord[:,1], [height*j,height*(j+1)], color=line_color,
+                        linestyle="dashed", linewidth=line_width,alpha=line_alpha)
 
         if hide_axis:
             plt.axis('off')
         plt.show()
-
-    def smooth_mapping(self,
-        query:int,
-        ref_list:List[int],
-        layer:int,
-        range:Optional[int]=20
-        )->np.ndarray:
-        r"""
-        Use smoothed cell mapping to replace the best cell mapping 
-        
-        Parameters
-        ----------
-        query
-            query cell index
-        ref_list
-            reference cell index list
-        layer
-            query cell layer (assume)
-        range
-            top K of the mapping which can be smoothed 
-        """
-        assert 1 <= range <= len(ref_list)
-        ref_list = ref_list[0:range]
-        dis = euclidean_distances(self.loc_list[layer][query,:], self.loc_list[layer+1][ref_list,:])
-        best = ref_list[np.argmin(dis)]
-        return best
 
 
 class match_3D_multi():
@@ -207,6 +169,8 @@ class match_3D_multi():
         and dataset1 rotate on y axes
     change_xy
         exchange x and y on dataset_B
+    subset
+        index of query cells to be plotted
 
     Note
     ----------
@@ -214,21 +178,23 @@ class match_3D_multi():
         
     """
     def __init__(self,dataset_A:pd.DataFrame,
-                 dataset_B: pd.DataFrame,
-                 matching: np.ndarray,
-                 meta: Optional[str]=None,
-                 expr: Optional[str]=None,
-                 subsample_size: Optional[int]=300,
-                 reliability: Optional[np.ndarray]=None,
-                 scale_coordinate: Optional[bool]=True,
-                 rotate: Optional[List[str]]=None,
-                 exchange_xy: Optional[bool]=False
+                dataset_B:pd.DataFrame,
+                matching:np.ndarray,
+                meta:Optional[str]=None,
+                expr:Optional[str]=None,
+                subsample_size:Optional[int]=300,
+                reliability:Optional[np.ndarray]=None,
+                scale_coordinate:Optional[bool]=True,
+                rotate:Optional[List[str]]=None,
+                exchange_xy:Optional[bool]=False,
+                subset: Optional[List[int]]=None
         ) -> None:
         self.dataset_A = dataset_A.copy()
         self.dataset_B = dataset_B.copy()
         self.meta = meta
         self.matching= matching
         self.conf = reliability
+        self.subset = subset # index of query cells to be plotted
         scale_coordinate = True if rotate != None else scale_coordinate
         
         assert all(item in dataset_A.columns.values for item in ['index','x','y'])
@@ -256,6 +222,8 @@ class match_3D_multi():
         if exchange_xy:
             self.dataset_B[['x','y']] = self.dataset_B[['y','x']]
 
+        if not subset is None:
+            matching = matching[:,subset]
         subsample_size = subsample_size if matching.shape[1] > subsample_size else matching.shape[1]
         print(f'Subsample {subsample_size} cell pairs from {matching.shape[1]}')
         self.matching = matching[:,np.random.choice(matching.shape[1],subsample_size, replace=False)]
@@ -264,6 +232,7 @@ class match_3D_multi():
     
     def draw_3D(self,
                 size: Optional[List[int]]=[10,10],
+                conf_cutoff: Optional[float]=0,
                 point_size: Optional[List[int]]=[0.1,0.1],
                 line_width: Optional[float]=0.3,
                 line_color:Optional[str]='grey',
@@ -280,6 +249,8 @@ class match_3D_multi():
         ----------
         size
             plt figure size
+        conf_cutoff
+            confidence cutoff of mapping to be plotted
         point_size
             point size of every dataset
         line_width
@@ -297,10 +268,11 @@ class match_3D_multi():
         save
             save file path
         """
+        self.conf_cutoff = conf_cutoff
         show_error = show_error if self.meta else False
         fig = plt.figure(figsize=(size[0],size[1]))
         ax = fig.add_subplot(111, projection='3d')
-        # color by different cell types
+        # color by meta
         if self.meta:
             color = random_color(len(self.celltypes))
             c_map = {}
@@ -323,7 +295,7 @@ class match_3D_multi():
                     else:
                         ax.scatter(xs, ys, zs, s=point_size[i], c=c_map[cell_type])
                     
-        # plot different point layers
+        # plot points  without meta
         else:
             for i, dataset in enumerate(self.datasets):
                 xs = dataset['x']
@@ -345,6 +317,8 @@ class match_3D_multi():
         Draw lines between paired cells in two datasets
         """
         for i in range(self.matching.shape[1]):
+            if not self.conf is None and self.conf[i] < self.conf_cutoff:
+                continue
             pair = self.matching[:,i]
             default_color = default_color
             if self.meta != None:
@@ -353,11 +327,11 @@ class match_3D_multi():
                     color = '#ade8f4' # blue
                 else:
                     color = '#ffafcc'  # red
-                if self.conf:
-                    if color == '#ade8f4' and not self.conf[i]: # low reliability but right
-                        color = '#588157' # green
-                    elif color == '#ffafcc' and self.conf[i]: # high reliability but error
-                        color = '#ffb703' # yellow
+                # if self.conf:
+                #     if color == '#ade8f4' and not self.conf[i]: # low reliability but right
+                #         color = '#588157' # green
+                #     elif color == '#ffafcc' and self.conf[i]: # high reliability but error
+                #         color = '#ffb703' # yellow
                 
             point0 = np.append(self.dataset_A[self.dataset_A['index']==pair[1]][['x','y']], 0)
             point1 = np.append(self.dataset_B[self.dataset_B['index']==pair[0]][['x','y']], 1)
@@ -396,6 +370,8 @@ class match_3D_multi_error(match_3D_multi):
         how to rotate the slides (force scale_coordinate)
     change_xy
         exchange x and y on dataset_B
+    subset
+        index of query cells to be plotted
         
     Note
     ----------
@@ -414,14 +390,15 @@ class match_3D_multi_error(match_3D_multi):
                  scale_coordinate: Optional[bool]=False,
                  rotate: Optional[List[str]]=None,
                  exchange_xy: Optional[bool]=False,
+                 subset: Optional[Union[np.ndarray,List[int]]]=None
         ) -> None:
         super(match_3D_multi_error, self).__init__(dataset_A,dataset_B,matching,meta,expr,subsample_size,reliability,
-                                                   scale_coordinate,rotate,exchange_xy)
+                                                   scale_coordinate,rotate,exchange_xy,subset)
         assert mode in ['high_true','low_true','high_false','low_false']
         self.mode = mode
         self.highlight_color = highlight_color
         
-    def draw_lines(self,ax,show_error,default_color,line_width=0.3,line_alpha=0.7) -> None:
+    def draw_lines(self,ax,line_width=0.3,line_alpha=0.7) -> None:
         for i in range(self.matching.shape[1]):
             pair = self.matching[:,i]
             if self.dataset_B.loc[self.dataset_B['index']==pair[0], 'celltype'].astype(str).values ==\
@@ -436,7 +413,8 @@ class match_3D_multi_error(match_3D_multi):
             coord = np.row_stack((point0,point1))
             ax.scatter(point0[0],point0[1],point0[2],color='red',alpha=1,s=0.3)
             ax.scatter(point1[0],point1[1],point1[2],color='red',alpha=1,s=0.3)
-            ax.plot(coord[:,0], coord[:,1], coord[:,2], color=self.highlight_color, linestyle="dashed",linewidth=line_width,alpha=line_alpha)
+            ax.plot(coord[:,0], coord[:,1], coord[:,2], color=self.highlight_color,
+                    linestyle="dashed",linewidth=line_width,alpha=line_alpha)
 
 
 class match_3D_celltype(match_3D_multi):
@@ -471,27 +449,30 @@ class match_3D_celltype(match_3D_multi):
         how to rotate the slides (force scale_coordinate)
     change_xy
         exchange x and y on dataset_B
+    subset
+        index of query cells to be plotted
         
     Note
     ----------
     dataset_A and dataset_B can in different length
     """
     def __init__(self,dataset_A: pd.DataFrame,
-                 dataset_B: pd.DataFrame,
-                 matching: np.ndarray,
-                 highlight_celltype: Optional[List[List[str]]]=[[],[]],
-                 highlight_line: Optional[Union[List[str],str]]='red',
-                 highlight_cell: Optional[str]=None,
-                 meta: Optional[str]=None,
-                 expr: Optional[str]=None,
-                 subsample_size: Optional[int]=300,
-                 reliability: Optional[np.ndarray]=None,
-                 scale_coordinate: Optional[bool]=False,
-                 rotate: Optional[List[str]]=None,
-                 exchange_xy: Optional[bool]=False,
+                dataset_B: pd.DataFrame,
+                matching: np.ndarray,
+                highlight_celltype: Optional[List[List[str]]]=[[],[]],
+                highlight_line: Optional[Union[List[str],str]]='red',
+                highlight_cell: Optional[str]=None,
+                meta: Optional[str]=None,
+                expr: Optional[str]=None,
+                subsample_size: Optional[int]=300,
+                reliability: Optional[np.ndarray]=None,
+                scale_coordinate: Optional[bool]=False,
+                rotate: Optional[List[str]]=None,
+                exchange_xy: Optional[bool]=False,
+                subset: Optional[Union[np.ndarray,List[int]]]=None
         ) -> None:
-        super(match_3D_celltype, self).__init__(dataset_A,dataset_B,matching,meta,expr,subsample_size,reliability,
-                                                   scale_coordinate,rotate,exchange_xy)
+        super(match_3D_celltype, self).__init__(dataset_A,dataset_B,matching,meta,expr,subsample_size,
+                                                reliability,scale_coordinate,rotate,exchange_xy,subset)
         assert set(highlight_celltype[0]).issubset(set(self.celltypes))
         assert set(highlight_celltype[1]).issubset(set(self.celltypes))
         self.highlight_celltype = highlight_celltype
@@ -503,7 +484,7 @@ class match_3D_celltype(match_3D_multi):
         if type(self.highlight_line) == list and len(self.highlight_line) >= len(color_index):
             cmap = self.highlight_line
         else:
-            cmap = random_color(len(color_index))
+            cmap = random_color(len(color_index)) if len(color_index) > 1 else [random_color(len(color_index))]
         
         for i in range(self.matching.shape[1]):
             pair = self.matching[:,i]
@@ -598,6 +579,8 @@ def multi_Sankey(matching_tables:List[pd.DataFrame],
         color of node
     title
         plot title
+    layout
+        layout size of picture
     day
         start day of dataset
     """

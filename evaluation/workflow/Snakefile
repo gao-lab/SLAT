@@ -7,8 +7,9 @@ base_config = {"dataset": config["dataset"], "timeout": config["timeout"]}
 
 
 targets = {
-    "hyperparam":["results/hyperparam.csv"], 
-    "LGCN":["results/LGCN.csv"]
+    "hyperparam":["results/hyperparam.csv"],
+    "noise":["results/noise.csv"], 
+    # "LGCN":["results/LGCN.csv"]
 }
 
 include: "rules/methods.smk"
@@ -22,12 +23,16 @@ rule all:
 module hyperparam:
     snakefile: "hyperparam.smk"
     config: config
-module LGCN:
-    snakefile: "LGCN.smk"
+module noise:
+    snakefile: "noise.smk"
     config: config 
+# module LGCN:
+#     snakefile: "LGCN.smk"
+#     config: config 
 
 use rule * from hyperparam as hyperparam_*
-use rule * from LGCN as LGCN_*
+use rule * from noise as noise_*
+# use rule * from LGCN as LGCN_*
 
 localrules: all
-localrules: link_datas, hyperparam_summarize, LGCN_summarize
+localrules: link_datas, hyperparam_summarize, noise_summarize

@@ -71,3 +71,34 @@ rule run_LGCN:
         {input.notebook} {params.notebook_result} \
         > {log} 2>&1
         """
+
+rule run_SLAT_noise:
+    input:
+        adata1="{path}/original/raw_dataset1.h5ad",
+        adata2="{path}/original/raw_dataset2.h5ad",
+        notebook="workflow/notebooks/run_SLAT_noise.ipynb",
+    output:
+        metric="{path}/SLAT_noise/seed:{seed}/nosie:{noise}/metrics.yaml",
+        emb0="{path}/SLAT_noise/seed:{seed}/nosie:{noise}/emb0.csv",
+        emb1="{path}/SLAT_noise/seed:{seed}/nosie:{noise}/emb1.csv",
+        matching="{path}/SLAT_noise/seed:{seed}/nosie:{noise}/matching.csv",
+    params:
+        notebook_result="{path}/SLAT_noise/seed:{seed}/nosie:{noise}/run_SLAT_noise.ipynb",
+    log:
+        "{path}/SLAT_noise/seed:{seed}/nosie:{noise}/run_SLAT_noise.log"
+    threads:8
+    resources: gpu=1
+    shell:
+        """
+        timeout {config[timeout]} papermill \
+        -p adata1_file {input.adata1} \
+        -p adata2_file {input.adata2} \
+        -p noise_level {wildcards.noise} \
+        -p seed {wildcards.seed} \
+        -p metric_file {output.metric} \
+        -p emb0_file {output.emb0} \
+        -p emb1_file {output.emb1} \
+        -p matching_file {output.matching} \
+        {input.notebook} {params.notebook_result} \
+        > {log} 2>&1
+        """

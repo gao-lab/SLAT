@@ -5,6 +5,7 @@ from typing import List, Optional
 
 import numpy as np
 import pandas as pd
+from scipy.spatial.distance import euclidean
 from scipy import sparse
 import torch
 import torch.nn.functional as F
@@ -121,7 +122,7 @@ def global_score(adatas:List[AnnData],
                  topology_meta:Optional[str]=''
     ) -> float:
     r"""
-    Calculate global score, which consider celltype and histology, in two aligned graph
+    Calculate global score, which consider celltype and histology, in two aligned graph (higher means better)
     
     Parameters
     ----------
@@ -141,12 +142,12 @@ def global_score(adatas:List[AnnData],
     assert len(adatas) == 2
     for adata in adatas:
         assert biology_meta in adata.obs.columns or topology_meta in adata.obs.columns
-        if biology_meta not in adata.obs:
+        if biology_meta not in adata.obs.columns:
             adata.obs[biology_meta] = 'Unknown'
-            print(f"Warning!,biology_meta not in adata.obs ")
-        elif topology_meta not in adata.obs:
+            print(f"Warning! biology_meta not in adata.obs ")
+        if topology_meta not in adata.obs.columns:
             adata.obs[topology_meta] = 'Unknown'
-            print(f"Warning!,topology_meta not in adata.obs ")
+            print(f"Warning! topology_meta not in adata.obs ")
         adata.obs['global_meta'] = adata.obs[biology_meta].astype(str) + '-' + adata.obs[topology_meta].astype(str)
     count = 0
     for i in range(matching.shape[0]): # query dataset
@@ -160,12 +161,12 @@ def global_score(adatas:List[AnnData],
 
 def edge_score(edges:List[torch.Tensor],
                matching:torch.Tensor,
-               score:Optional[List[float]]=[1,-1,0],
+               score:Optional[List[float]]=[1,-1],
                punish_distance:Optional[bool]=False,
                punish_scale:Optional[float]=1,
-    ) -> List[float]:
+    ) -> float:
     r"""
-    Calculate edge score in two aligned graph
+    Calculate edge score in two aligned graph (higher means better)
     
     Parameters
     ----------
@@ -174,7 +175,7 @@ def edge_score(edges:List[torch.Tensor],
     matching
         matching result
     score
-        score [match_edge, mismatch_edge, node_mismatch]
+        score of [match_edge, mismatch_edge]
     punish_distance
         if punish on the distance of mismatch cell
     punish_scale
@@ -188,10 +189,41 @@ def edge_score(edges:List[torch.Tensor],
 
     a0_reindex = a0[matching[1,:],:][:,matching[1,:]]
     res = a0_reindex + a1 - 2*sparse.eye(a0_reindex.shape[0])
-    res.data[np.where(res.data==1)] = -1
+    res.data[np.where(res.data==2)] = score[0]   # matched edge
+    res.data[np.where(res.data==1)] = score[1]   # mismatch edge
     score = res.sum()/res.shape[0]
-        
-    return score
+    return float(score)
+
+
+def euclidean_dis(adata1:AnnData,
+                  adata2:AnnData,
+                  matching:np.ndarray,
+                  spatial_key:Optional[str]='spatial'
+    ) -> float:
+    r"""
+    Calculate euclidean distance between two datasets with ground truth (lower means better)
+    
+    Parameters
+    ----------
+    adata1
+        adata1 with spatial
+    adata2
+        adata2 with spatial
+    matching
+        matching result
+    spatial_key
+        key of spatial data in adata.obsm
+    """
+    # reindex adata1 and adata2 by matching then calculate the pairwise euclidean distance
+    if abs(adata1.obsm[spatial_key].max()) > 1 or abs(adata1.obsm[spatial_key].min()) > 1:
+        adata1.obsm['scale_spatial'] = adata1.obsm[spatial_key]/adata1.obsm[spatial_key].max()
+    if abs(adata2.obsm[spatial_key].max()) > 1 or abs(adata2.obsm[spatial_key].min()) > 1:
+        adata2.obsm['scale_spatial'] = adata2.obsm[spatial_key]/adata2.obsm[spatial_key].max()
+    spatial_key = 'scale_spatial'
+    coord1 = adata1.obsm[spatial_key][matching[1,:]]
+    coord2 = adata2.obsm[spatial_key]
+    distance = np.sqrt((coord1[:,0] - coord2[:,0])**2+(coord1[:,1] - coord2[:,1])**2)
+    return float(distance.sum()/distance.shape[0])
 
 
 # TODO: optimize the speed

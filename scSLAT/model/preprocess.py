@@ -5,10 +5,13 @@ from typing import Optional, Union
 
 import pandas as pd
 import numpy as np
-import sklearn.neighbors
+import scanpy as sc
+import torch
+from torch_geometric.nn import knn_graph, radius_graph
+from torch_geometric.utils import to_undirected
 from anndata import AnnData
 
-# TBD: can be faster with faiss
+
 def Cal_Spatial_Net(adata:AnnData,
                     rad_cutoff:Optional[Union[None,int]]=None,
                     k_cutoff:Optional[Union[None,int]]=None, 
@@ -39,39 +42,56 @@ def Cal_Spatial_Net(adata:AnnData,
     assert(model in ['Radius', 'KNN'])
     if verbose:
         print('Calculating spatial neighbor graph ...')
-    coor = pd.DataFrame(adata.obsm['spatial'])
-    coor.index = adata.obs.index
-    coor.columns = ['imagerow', 'imagecol']
 
-    if model == 'Radius':
-        nbrs = sklearn.neighbors.NearestNeighbors(radius=rad_cutoff).fit(coor)
-        distances, indices = nbrs.radius_neighbors(coor, return_distance=True)
-        KNN_list = []
-        for it in range(indices.shape[0]):
-            KNN_list.append(pd.DataFrame(zip([it]*indices[it].shape[0], indices[it], distances[it])))
+    if model == 'KNN':
+        edge_index = knn_graph(x=torch.tensor(adata.obsm['spatial']), flow='target_to_source',
+                                k=k_cutoff, loop=True, num_workers=8)
+        edge_index = to_undirected(edge_index, num_nodes=adata.shape[0]) # ensure the graph is undirected
+    elif model == 'Radius':
+        edge_index = radius_graph(x=torch.tensor(adata.obsm['spatial']), flow='target_to_source',
+                                    r=rad_cutoff, loop=True, num_workers=8) 
+
+    graph_df = pd.DataFrame(edge_index.numpy().T, columns=['Cell1', 'Cell2'])
+    id_cell_trans = dict(zip(range(adata.n_obs), adata.obs_names))
+    graph_df['Cell1'] = graph_df['Cell1'].map(id_cell_trans)
+    graph_df['Cell2'] = graph_df['Cell2'].map(id_cell_trans)
+    adata.uns['Spatial_Net'] = graph_df
     
-    elif model == 'KNN':
-        nbrs = sklearn.neighbors.NearestNeighbors(n_neighbors=k_cutoff+1).fit(coor)
-        distances, indices = nbrs.kneighbors(coor)
-        KNN_list = []
-        for it in range(indices.shape[0]):
-            KNN_list.append(pd.DataFrame(zip([it]*indices[it].shape[0], indices[it], distances[it])))
-            # KNN_list.append(pd.DataFrame(zip([it]*indices.shape[1],indices[it,:], distances[it,:])))
-    else:
-        raise NotImplementedError('Only support KNN and Radius')    
-
-    KNN_df = pd.concat(KNN_list)
-    KNN_df.columns = ['Cell1', 'Cell2', 'Distance']
-
-    Spatial_Net = KNN_df.copy()
-    Spatial_Net = Spatial_Net.loc[Spatial_Net['Distance']>0,]
-    id_cell_trans = dict(zip(range(coor.shape[0]), np.array(coor.index), ))
-    Spatial_Net['Cell1'] = Spatial_Net['Cell1'].map(id_cell_trans)
-    Spatial_Net['Cell2'] = Spatial_Net['Cell2'].map(id_cell_trans)
     if verbose:
-        print('The graph contains %d edges, %d cells.' %(Spatial_Net.shape[0], adata.n_obs))
-        print('%.4f neighbors per cell on average.' %(Spatial_Net.shape[0]/adata.n_obs))
+        print(f'The graph contains {graph_df.shape[0]} edges, {adata.n_obs} cells.')
+        print(f'{graph_df.shape[0]/adata.n_obs} neighbors per cell on average.')
 
-    adata.uns['Spatial_Net'] = Spatial_Net
     if return_data:
         return adata
+
+
+def scanpy_workflow(adata:AnnData,
+                    n_top_genes:Optional[int]=2500,
+                    n_comps:Optional[int]=50
+    ) -> AnnData:
+    r"""
+    Scanpy workflow using Seurat HVG
+    
+    Parameters
+    ----------
+    adata
+        adata
+    n_top_genes
+        n top genes
+    n_comps
+        n PCA components
+        
+    Return
+    ----------
+    anndata object
+    """
+    if 'counts' not in adata.layers.keys():
+        adata.layers["counts"] = adata.X.copy()
+    if "highly_variable" not in adata.var_keys() and adata.n_vars > n_top_genes:
+        sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, flavor="seurat_v3")
+    sc.pp.normalize_total(adata)
+    sc.pp.log1p(adata)
+    sc.pp.scale(adata)
+    if n_comps > 0:
+        sc.tl.pca(adata, n_comps=n_comps, svd_solver="auto")
+    return adata

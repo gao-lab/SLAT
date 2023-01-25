@@ -2,8 +2,8 @@ import os
 
 rule link_datas:
     input:
-        dataset1=lambda wildcards: config["dataset"][wildcards.dataset][0],
-        dataset2=lambda wildcards: config["dataset"][wildcards.dataset][1],
+        dataset1=lambda wildcards: config["noise_dataset"][wildcards.dataset][0],
+        dataset2=lambda wildcards: config["noise_dataset"][wildcards.dataset][1],
     output:
         dataset1="{path}/{dataset}/original/raw_dataset1.h5ad",
         dataset2="{path}/{dataset}/original/raw_dataset2.h5ad",

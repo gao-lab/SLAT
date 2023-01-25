@@ -6,5 +6,7 @@ RUN mamba install -c pyg pyg -y
 RUN mamba install -c conda-forge scanpy python-igraph leidenalg flit jupyterlab papermill parse dill -y 
 RUN mamba install -c conda-forge -c bioconda snakemake==7.12.0 tabulate==0.8.10 -y
 
+ENV http_proxy http://xiachenrui:xiachenrui%40GaoLab@202.38.126.18:7777
+ENV https_proxy http://xiachenrui:xiachenrui%40GaoLab@202.38.126.18:7777
 RUN pip3 install --upgrade pip
 RUN git clone https://github.com/gao-lab/SLAT && cd SLAT && pip install -e ".[torch]" && pip install -e ".[pyg,dev,doc]"

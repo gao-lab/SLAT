@@ -43,7 +43,7 @@ def main(snakemake: Union[argparse.Namespace, Snakemake]) -> None:  # pylint: di
     """
     df = []
     for item in set(snakemake.input):
-        if "metrics.yaml" not in item:
+        if "metrics_all.yaml" not in item:
             continue
         entry = parse.parse(snakemake.params.pattern, item)
         # print(entry)

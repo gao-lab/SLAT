@@ -13,3 +13,7 @@ __default__:
 hyperparam_run_SLAT:
   partition: gpu32
   gres: "--gres=gpu:1"
+
+run_SLAT_noise:
+  partition: gpu32
+  gres: "--gres=gpu:1"

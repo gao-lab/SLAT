@@ -1,11 +1,12 @@
 # Methods
 We benchmark with following methods
-| Method  | Graph based | Use spatial | Batch correct | Cell embedding |
-| ------- | ----------- | ----------- | ------------- | -------------- |
-| SLAT    | yes         | yes         | yes           | yes            |
-| PASTE   | no          | yes         | no            | no             |
-| Seurat  | no          | no          | yes           | yes            |
-| Harmony | no          | no          | yes           | yes            |
+| Method  | Graph based | For spatial | Cross platform |
+| ------- | ----------- | ----------- | -------------- |
+| SLAT    | yes         | yes         | yes            |
+| STAGATE | yes         | yes         | no             |
+| PASTE   | no          | yes         | no             |
+| Seurat  | no          | no          | yes            |
+| Harmony | no          | no          | yes            |
 
 
 

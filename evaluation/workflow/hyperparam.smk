@@ -1,18 +1,10 @@
 import os
 from utils import target_directories, target_files
 
-rule plot:
-    input:
-        "results/hyperparam.csv"
-    output:
-        h1='results/pic/hyperparam_score.pdf',
-    script:
-        "scripts/hyperparam.R"
-
 
 rule summarize:
     input:
-        target_files(target_directories(config, sample=config["sample"]))
+        target_files(target_directories(config, sample=config["sample"], hyperparameter='SLAT_hyperparam'))
     output:
         "results/hyperparam.csv"
     params:

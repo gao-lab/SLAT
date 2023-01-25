@@ -88,9 +88,8 @@ def global_seed(seed: int) -> None:
     seed 
         int
     """
-    seed = seed if seed != -1 else torch.seed()
-    if seed > 2**32 - 1:
-        seed = seed >> 32
+    if seed > 2**32 - 1 or seed <0:
+        seed = 0
 
     random.seed(seed)
     np.random.seed(seed)

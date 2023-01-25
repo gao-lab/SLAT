@@ -54,7 +54,9 @@ def seed2range(config):
             config[key] = range(val)
 
 
-def target_directories(config, sample:int = 0):
+def target_directories(config,
+                       sample:int = 0,
+                       hyperparameter:str = 'SLAT_hyperparam'):
     r"""
     Resolve snakemake config to str
     
@@ -64,6 +66,8 @@ def target_directories(config, sample:int = 0):
         snakemake config
     sample
         number of rules to sample
+    hyperparameter
+        which hyperparameter to use
     """
     np.random.seed(seed=0)
     seed2range(config)
@@ -75,20 +79,8 @@ def target_directories(config, sample:int = 0):
         conf_expand_pattern(data_conf, placeholder="default"),
         **data_conf
     )
-
-    graph_conf = config["spatial_graph"] or {}
-    graph_conf = expand(
-        conf_expand_pattern(graph_conf, placeholder="default"),
-        **graph_conf
-    )
     
-    feature_conf = config['feature_embed'] or {}
-    feature_conf = expand(
-        conf_expand_pattern(feature_conf, placeholder="default"),
-        **feature_conf
-    )
-    
-    hyperparam_conf = config["hyperparam"] or {}
+    hyperparam_conf = config[hyperparameter] or {}
     hyperparam_conf = expand(
         conf_expand_pattern(hyperparam_conf, placeholder="default"),
         **hyperparam_conf
@@ -97,11 +89,9 @@ def target_directories(config, sample:int = 0):
     seed = config["seed"] 
     
     pool = expand(
-        "results/{dataset}/{data_conf}/{graph_conf}-{feature_conf}-{hyperparam_conf}/seed:{seed}",
+        "results/{dataset}/{data_conf}/{hyperparam_conf}/seed:{seed}",
         dataset=dataset,
         data_conf=data_conf,
-        graph_conf=graph_conf,
-        feature_conf=feature_conf,
         hyperparam_conf=hyperparam_conf,
         seed=seed
     )

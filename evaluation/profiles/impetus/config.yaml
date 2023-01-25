@@ -4,6 +4,7 @@ printshellcmds: true
 reason: true
 keep-going: true
 resources: gpu=1000
+rerun-incomplete: true
 # use-conda: true
 # use-singularity: true
 # singularity-args: " --nv"

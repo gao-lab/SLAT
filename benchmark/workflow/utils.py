@@ -85,7 +85,11 @@ def target_directories(config, sample:int = 0):
                 data_conf['cells']['choices'] = list(filter(lambda x: int(x) < 7000, data_conf['cells']['choices'] )) 
         if method == 'PASTE' and dataset == 'stereo_mouse_embryo':
             data_conf['cells']['choices'] = list(filter(lambda x: 0 < int(x) < 30001, data_conf['cells']['choices'] ))
-        print(f"{method}--{dataset}--{data_conf['cells']['choices']}")
+        # if method == 'STAGATE' and dataset == 'stereo_mouse_embryo':
+        #     data_conf['cells']['choices'] = list(filter(lambda x: 0 < int(x) < 2000000, data_conf['cells']['choices'] ))
+        if method == 'Seuart' and dataset == 'stereo_mouse_embryo':
+            data_conf['cells']['choices'] = list(filter(lambda x: 100 < int(x), data_conf['cells']['choices'] ))
+        # print(f"{method}--{dataset}--{data_conf['cells']['choices']}")
         data_conf = expand(
             conf_expand_pattern(data_conf, placeholder="default"),
             **data_conf
@@ -118,10 +122,10 @@ def target_files(directories):
     """
     def per_directory(directory):
         directory = Path(directory)
-        if (directory / "metrics.yaml").exists():
-            return [directory / "metrics.yaml"]
+        if (directory / "metrics_all.yaml").exists():
+            return [directory / "metrics_all.yaml"]
         return [
-            directory / "metrics.yaml",
+            directory / "metrics_all.yaml",
         ]
 
     return reduce(add, map(per_directory, directories))

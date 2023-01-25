@@ -1,8 +1,9 @@
+library(tools)
+source(file_path_as_absolute("renv/activate.R"))
+# options(renv.config.pak.enabled=TRUE)
 library(reticulate)
 use_python(paste0(getwd(),"/conda/bin/python"))
 options(bitmapType = "cairo")
-library(tools)
-.libPaths(file_path_as_absolute("./resource/R-4.1.3/library"))
 
 
 .convert <- function(obj) {
@@ -18,7 +19,7 @@ library(tools)
             i = as.vector(reticulate::py_to_r(obj$row)) + 1,
             j = as.vector(reticulate::py_to_r(obj$col)) + 1,
             x = as.vector(reticulate::py_to_r(obj$data)),
-            dims = as.vector(reticulate::py_to_r(obj$shape))
+            dims = unlist(as.vector(reticulate::py_to_r(obj$shape)))
         ))
     }
     if (isinstance(obj, DataFrame)) {
@@ -58,7 +59,7 @@ convert.h5ad <- function(adata) {
     ))
 }
 
-
+ 
 read.h5ad <- function(filename) {
     ad <- reticulate::import("anndata", convert = FALSE)
     adata <- ad$read_h5ad(filename)

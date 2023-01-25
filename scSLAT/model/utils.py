@@ -2,12 +2,12 @@ r"""
 Useful functions
 """
 import time
+import math
 from typing import List, Mapping, Optional, Union
 from pathlib import Path
 from joblib import Parallel, delayed
-import math
-import faiss
 
+import faiss
 import scanpy as sc
 import torch
 import numpy as np
@@ -56,9 +56,9 @@ def run_LGCN(features:List,
     embd0 = LGCN_model(features[0], edges[0])
     embd1 = LGCN_model(features[1], edges[1])
     
-    time2 = time.time()
-    print('LGCN time: %.2f' % (time2-time1))
-    return embd0, embd1, time2-time1    
+    run_time = time.time() - time1
+    print(f'LGCN time: {run_time}')
+    return embd0, embd1, run_time   
 
 
 def run_SLAT(features:List,
@@ -181,7 +181,9 @@ def spatial_match(embds:List[torch.Tensor],
                   top_n:Optional[int]=20,
                   smooth:Optional[bool]=True,
                   smooth_range:Optional[int]=20,
-                  adatas:Optional[List[AnnData]]=None
+                  scale_coord:Optional[bool]=True,
+                  adatas:Optional[List[AnnData]]=None,
+                  verbose:Optional[bool]=False
     )-> List[Union[np.ndarray,torch.Tensor]]:
     r"""
     Use embedding to match cells from different datasets based on cosine similarity
@@ -198,9 +200,13 @@ def spatial_match(embds:List[torch.Tensor],
         if smooth the mapping by Euclid distance
     smooth_range
         use how many candidates to do smooth
+    scale_coord
+        if scale the coordinate to [0,1]
     adatas
         list of adata object
-
+    verbose
+        if print log
+    
     Note
     ----------
     Automatically use larger dataset as source
@@ -216,7 +222,7 @@ def spatial_match(embds:List[torch.Tensor],
     if reorder and embds[0].shape[0] < embds[1].shape[0]:
         embd0 = embds[1]
         embd1 = embds[0]
-        adatas.reverse()
+        adatas = adatas[::-1] if adatas is not None else None
     else:
         embd0 = embds[0]
         embd1 = embds[1]
@@ -232,11 +238,19 @@ def spatial_match(embds:List[torch.Tensor],
     best = []
     if smooth and adatas != None:
         smooth_range = min(smooth_range, top_n)
-        print('Smoothing mapping, make sure object is in same direction')
+        if verbose:
+            print('Smoothing mapping, make sure object is in same direction')
+        if scale_coord:
+            # scale spatial coordinate of every adata to [0,1]
+            adata1_coord = adatas[0].obsm['spatial'].copy()
+            adata2_coord = adatas[1].obsm['spatial'].copy()
+            for i in range(2):
+                    adata1_coord[:,i] = (adata1_coord[:,i]-np.min(adata1_coord[:,i]))/(np.max(adata1_coord[:,i])-np.min(adata1_coord[:,i]))
+                    adata2_coord[:,i] = (adata2_coord[:,i]-np.min(adata2_coord[:,i]))/(np.max(adata2_coord[:,i])-np.min(adata2_coord[:,i]))
         for query in range(embd1_np.shape[0]):
             ref_list = order[query, :smooth_range]
-            dis = euclidean_distances(adatas[1].obsm['spatial'][query,:].reshape(1, -1), 
-                                      adatas[0].obsm['spatial'][ref_list,:])
+            dis = euclidean_distances(adata2_coord[query,:].reshape(1, -1), 
+                                      adata1_coord[ref_list,:])
             best.append(ref_list[np.argmin(dis)])
     else:
         best = order[:,0]
@@ -245,10 +259,11 @@ def spatial_match(embds:List[torch.Tensor],
 
 def run_SLAT_multi(adatas:List[AnnData],
                      order:Optional[list]=None,
-                     k_cutoff:Optional[int]=50,
-                     feature:Optional[str]='harmony',
+                     k_cutoff:Optional[int]=10,
+                     feature:Optional[str]='DPCA',
                      cos_cutoff:Optional[float]=0.85,
-                     n_jobs:Optional[int]=-1
+                     n_jobs:Optional[int]=-1,
+                     top_K:Optional[int]=50
     )->List[np.ndarray]:
     r"""
     Run SLAT on multi-dataset for 3D re-construct
@@ -262,11 +277,13 @@ def run_SLAT_multi(adatas:List[AnnData],
     k_cutoff
         k nearest neighbor
     feature
-        feature to use, one of ['PCA','harmony']
+        feature to use, one of ['DPCA', 'PCA', 'harmony']
     cos_cutoff
         cosine similarity cutoff of mapping results
     n_jobs
         cpu cores to use
+    top_K
+        top K smooth mapping results
         
     Return
     ----------
@@ -281,28 +298,23 @@ def run_SLAT_multi(adatas:List[AnnData],
     #     Cal_Spatial_Net(adata, k_cutoff=k_cutoff, model='KNN')
     adatas = Parallel(n_jobs=n_jobs)(delayed(Cal_Spatial_Net)(adata, k_cutoff=k_cutoff, model='KNN',return_data=True) for adata in adatas)
     matching_list = []
-    # for i, (a1 , a2) in enumerate(zip(adatas, adatas[1:])):
-    #     print(f'Mapping dataset:{i} --- dataset:{i+1}')
-    #     edges, features = load_anndatas([a1, a2], feature=feature, check_order=False)
-    #     embd0, embd1, _ = run_SLAT(features, edges)
-    #     index, score = spatial_match([embd0,embd1], check=False)
-    #     matching = np.array([range(index.shape[0]), index[:,0]])
-    #     matching_list.append(matching)
-    def parall_Dragn(a1,a2,i):
+
+    def parall_SLAT(a1, a2, i):
         print(f'Parallel mapping dataset:{i} --- dataset:{i+1}')
         edges, features = load_anndatas([a1, a2], feature=feature, check_order=False)
         embd0, embd1, _ = run_SLAT(features, edges)
-        index, score = spatial_match([embd0,embd1], check=False)
-        return index, score
-    zip_res = Parallel(n_jobs=n_jobs)(delayed(parall_Dragn)(a1,a2,i)\
+        best, index, distance = spatial_match([embd0,embd1], reorder=False, smooth_range=top_K, adatas=[a1,a2])
+        return best, index, distance
+    
+    unfiltered_zip_res = Parallel(n_jobs=n_jobs)(delayed(parall_SLAT)(a1,a2,i)\
         for i, (a1, a2) in enumerate(zip(adatas, adatas[1:])))
     matching_list = []
-    for (index , score) in zip_res:
-        matching = np.array([range(index.shape[0]), index[:,0]])
-        matching_filter = matching[:,score[:,0]>cos_cutoff]
+    for (best, index, distance) in unfiltered_zip_res:
+        matching = np.array([range(index.shape[0]), best])
+        matching_filter = matching[:, distance[:,0]>cos_cutoff]
         matching_list.append(matching_filter)
     # assert [x.shape[1] for x in matching_list] == [y.shape[0] for y in adatas[1:]] # check order
-    return matching_list, zip_res
+    return matching_list, unfiltered_zip_res
 
 
 def calc_k_neighbor(features:List[torch.Tensor],
@@ -332,31 +344,6 @@ def calc_k_neighbor(features:List[torch.Tensor],
 
     return nbr_dict
 
-def _find_neighbor_neighbor_interactions():
-    r"""
-    Helper function of graph-vs-graph analysis 
-    
-    computes KNN graph vs cluster graph overlaps
-    
-    Parameters
-    ----------
-    adata
-    
-    nbrs
-    
-    clusters
-    
-
-    Returns
-    ----------
-    pd.Dataframe 
-        a pandas dataframe with results of all matches with nbr-nbr 
-        overlaps having pvalues <= pval_threshold
-    np.array
-        array of adjusted_pvals
-    """
-    pass
-
 
 def add_noise(adata,
               noise:Optional[str]='nb',
@@ -385,35 +372,4 @@ def add_noise(adata,
         adata.X = torch.distributions.negative_binomial.NegativeBinomial(inverse_noise,logits=(mu.log()-math.log(inverse_noise))).sample().numpy()
     else:
         raise NotImplementedError('Can not add this type noise')
-    return adata.copy()
-    
-
-def scanpy_workflow(adata:AnnData,
-                    n_top_genes:Optional[int]=2500,
-                    n_comps:Optional[int]=50
-    ) -> AnnData:
-    r"""
-    Scanpy workflow using Seurat HVG
-    
-    Parameters
-    ----------
-    adata
-        adata
-    n_top_genes
-        n top genes
-    n_comps
-        n PCA components
-        
-    Return
-    ----------
-    anndata object
-    """
-    if 'counts' not in adata.layers.keys():
-        adata.layers["counts"] = adata.X.copy()
-    if "highly_variable" not in adata.var_keys():
-        sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, flavor="seurat_v3")
-    sc.pp.normalize_total(adata)
-    sc.pp.log1p(adata)
-    sc.pp.scale(adata)
-    sc.tl.pca(adata, n_comps=n_comps, svd_solver="auto")
     return adata.copy()

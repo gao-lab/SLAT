@@ -3,35 +3,47 @@ configfile: "config/config.yaml"
 from functools import reduce
 from operator import add
 
+
 targets = {
     "benchmark":[
         expand("results/benchmark.csv"), 
     ],
-    "evaluation":[
-        expand("results/evaluation.csv")
+    "split_data": [
+        expand("split/split_data.csv"),
+    ],
+    "build_3d": [
+        expand("multi/build_3d.csv"),
     ]
 }
 
 localrules: all
-
 rule all:
     input:
-        reduce(add, map(lambda x: targets[x], config["use"]))
+        results = reduce(add, map(lambda x: targets[x], config["use"]))
+
 
 include: "rules/data_prepare.smk"
 include: "rules/methods.smk"
+include: "rules/metrics.smk"
 
 module benchmark:
     snakefile: "benchmark.smk"
     config: config
 
-module evaluation:
-    snakefile: "evaluation.smk"
-    config: config 
+module split_data:
+    snakefile: "split_data.smk"
+    config: config
+
+module build_3d:
+    snakefile: "build_3d.smk"
+    config: config
 
 use rule * from benchmark as benchmark_*
-use rule * from evaluation as evaluation_*
+use rule * from split_data as split_data_*
+use rule * from build_3d as build_3d_*
 
-localrules: evaluation_summarize
+localrules: link_data
 localrules: benchmark_summarize
+localrules: split_data_summarize
+localrules: build_3d_summarize
 

@@ -12,20 +12,28 @@ __default__:
 
 data2input:
   partition: gpu32
-  gres: "--gres=gpu:8"
+  gres: "--gres=gpu:1"
 
 run_SLAT:
   partition: gpu32
-  gres: "--gres=gpu:8"
-
-run_PASTE:
-  partition: gpu32
-  gres: "--gres=gpu:8"
+  gres: "--gres=gpu:1"
 
 run_SLAT_noise:
   partition: gpu32
   gres: "--gres=gpu:1"
 
+run_SLAT_harmony:
+  partition: gpu32
+  gres: "--gres=gpu:1"
+
+run_STAGATE:
+  partition: gpu32
+  gres: "--gres=gpu:1"
+
+run_PASTE:
+  partition: gpu32
+  gres: "--gres=gpu:1"
+
 run_Seurat:
   partition: gpu32
-  gres: "--gres=gpu:2"
+  gres: "--gres=gpu:1"

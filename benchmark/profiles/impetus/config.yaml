@@ -7,3 +7,4 @@ resources: gpu=1000
 use-conda: true
 use-singularity: true
 singularity-args: " --nv"
+rerun-incomplete: true

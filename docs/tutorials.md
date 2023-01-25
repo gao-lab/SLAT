@@ -1,6 +1,6 @@
 # Tutorials
 
-``SLAT`` alignment can finish in GPU server less than 100 seconds, and also can run on laptop with 16GB memory without GPU in less than 10min!
+``SLAT`` alignment can finish in GPU server in less than 100 seconds, and also can run on laptop with 16GB memory without GPU in less than 10min!
 We provide following tutorials for you to get started quickly.
 
 ## Basic Usage

@@ -1,0 +1,41 @@
+{
+    "r.lsp.promptToInstall": false,
+
+    "python.defaultInterpreterPath": "${workspaceRoot}/conda/bin/python",
+    "files.watcherExclude": {
+        // files which exclude from triggering the file watcher
+        "**/conda/**": true,
+        "**/data/**": true,
+        "**/renv/**": true,
+        "**/.snakemake/**": true,
+        // "**/.slurm/**": true,
+        "**/.ipynb_checkpoints/**": true,
+        "**/.pytest_cache/**": true,
+        "**/.virtual_documents/**": true,
+        "**/__pycache__/**": true,
+        "**/*.deprecated/**": true,
+        "**/*.bak/**": true,
+        "**/*.old/**": true,
+        "/rd2/user/xiacr/spatialGLUE/resource/build/SimpleITK-build/": true,
+
+    },
+    "files.exclude": {
+        // files which exclued in VSCode
+        "**/.snakemake/**": true,
+        "**/.ipynb_checkpoints/**": true,
+        "**/.pytest_cache/**": true,
+        "**/.virtual_documents/**": true,
+        "**/__pycache__/**": true,
+        "**/conda": true,
+        "**/*.deprecated/**": true,
+        "**/*.bak/**": true,
+        "**/*.old/**": true,
+        "/rd2/user/xiacr/spatialGLUE/resource/build/SimpleITK-build/": true,
+
+    },
+    "jupyter.jupyterServerType": "local",
+    "python.tensorboard.logDirectory": "logs/",
+    "python.languageServer": "Default",
+    "zenMode.restore": false
+
+}

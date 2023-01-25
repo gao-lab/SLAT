@@ -1,4 +1,4 @@
-#---------------------------- Global ----------------------------#
+#-------------------------------- Global ----------------------------------#
 timeout: 24h
 timehold: 200h
 seed: 8
@@ -7,45 +7,65 @@ fix_sample: True
 
 use:
   - benchmark
-  - evaluation
+  - split_data
+  - build_3d
 
+#-------------------------------- Dataset ----------------------------------#
 dataset:
-  stereo_mouse_embryo: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S1_filter_labeled.h5ad","../data/stereo_seq/counts/E15.5/count_E15.5_E1S2_filter_labeled.h5ad"]
   visium_human_DLPFC: ["../data/visium/DLPFC/region_1/151674_labeled.h5ad","../data/visium/DLPFC/region_1/151675_labeled.h5ad"]
   merfish_mouse_hypothalamic: ["../data/merfish/hypothalamic/merfish_layer1_labeled.h5ad","../data/merfish/hypothalamic/merfish_layer2_labeled.h5ad"]
+  stereo_mouse_embryo: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S1_filter_labeled.h5ad","../data/stereo_seq/counts/E15.5/count_E15.5_E1S2_filter_labeled.h5ad"]
 
+dataset_3d:
+  brain_1_ab: ["../data/visium/DLPFC/sample1/151507_preprocessed.h5ad", "../data/visium/DLPFC/sample1/151508_preprocessed.h5ad"]
+  brain_1_bc: ["../data/visium/DLPFC/sample1/151508_preprocessed.h5ad", "../data/visium/DLPFC/sample1/151509_preprocessed.h5ad"]
+  brain_1_cd: ["../data/visium/DLPFC/sample1/151509_preprocessed.h5ad", "../data/visium/DLPFC/sample1/151510_preprocessed.h5ad"]
+  brain_2_ab: ["../data/visium/DLPFC/sample2/151669_preprocessed.h5ad", "../data/visium/DLPFC/sample2/151670_preprocessed.h5ad"]
+  brain_2_bc: ["../data/visium/DLPFC/sample2/151670_preprocessed.h5ad", "../data/visium/DLPFC/sample2/151671_preprocessed.h5ad"]
+  brain_2_cd: ["../data/visium/DLPFC/sample2/151671_preprocessed.h5ad", "../data/visium/DLPFC/sample2/151672_preprocessed.h5ad"]
+  brain_3_ab: ["../data/visium/DLPFC/sample3/151673_preprocessed.h5ad", "../data/visium/DLPFC/sample3/151674_preprocessed.h5ad"]
+  brain_3_bc: ["../data/visium/DLPFC/sample3/151674_preprocessed.h5ad", "../data/visium/DLPFC/sample3/151675_preprocessed.h5ad"]
+  brain_3_cd: ["../data/visium/DLPFC/sample3/151675_preprocessed.h5ad", "../data/visium/DLPFC/sample3/151676_preprocessed.h5ad"]
 
-#--------------------------- Data size --------------------------#
+#--------------------------------- Data size ------------------------------#
 datasize:
   cells:
     default: 0
     # choices: [0]
-    # choices: [0, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400] # for subsample
+    choices: [0, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400] # for subsample
     # choices: [4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 50000, 100000] # for runtime
-    choices: [0, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 50000, 100000]
+    # choices: [0, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 50000, 100000]
     
+datasize_3d: [0]
 
-evaluation_size: 0
+split_ratio: 0.5
 
-#--------------------------- Method -----------------------------#
+#--------------------------- Benchmark Methods -----------------------------#
 method:
   # - PCA
   - Seurat
   - Harmony
+  - SLAT_harmony
+  - SLAT_dpca
   - SLAT
   - PASTE
+  - STAGATE
 
+method_3d:
+  - Seurat
+  - Harmony
+  - SLAT_harmony
+  - SLAT_dpca
+  - SLAT
+  - PASTE
+  - STAGATE
 
-#--------------------------- Noise -----------------------------#
-noise:
-  - 0
-  - 0.1
-  - 0.2
-  - 0.3
-  - 0.4
-  - 0.5
-  - 0.6
-  - 0.7
-  - 0.8
-  - 0.9
-  - 1
+method_split:
+  - PCA
+  - Seurat
+  - Harmony
+  - SLAT_harmony
+  - SLAT_dpca
+  - SLAT
+  - STAGATE
+  - PASTE
