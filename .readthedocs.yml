@@ -9,13 +9,4 @@ sphinx:
   configuration: docs/conf.py
 python:
   install:
-  - method: pip
-    path: .
-    extra_requirements:
-    - torch
-  - method: pip
-    path: .
-    extra_requirements:
-    - pyg
-    - dev
-    - docs
+    - requirements: docs/requirements.txt

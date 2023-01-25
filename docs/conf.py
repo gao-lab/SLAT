@@ -6,20 +6,14 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import os
 import sys
 from pathlib import Path
-import scSLAT
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
 from docs.utils import _get_thumbnails
 
-
-project = scSLAT.name
-version = scSLAT.__version__
-release = scSLAT.__version__
 copyright = 'Gao Lab@2022'
 author = 'Xia Chen-rui'
 
