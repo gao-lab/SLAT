@@ -42,11 +42,11 @@ master_doc = 'index'
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # nbsphinx_thumbnails = {**_get_thumbnails("tutorials")}
 nbsphinx_thumbnails = {
-    # "auto_**": "_static/img/squidpy_vertical.png",
     "tutorials/basic_usage": "_static/gallery_thumb/basic_usage.png",
     "tutorials/multi_datasets": "_static/gallery_thumb/multi_datasets.png",
+    "tutorials/cross_technology": "_static/gallery_thumb/cross_technology.png",
     "tutorials/times_series": "_static/gallery_thumb/times_series.png",
-    "tutorials/pre_match": "_static/gallery_thumb/pre_match.png"
+    "tutorials/pre_match": "_static/gallery_thumb/pre_match.png",
 }
 
 

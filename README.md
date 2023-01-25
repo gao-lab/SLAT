@@ -3,13 +3,10 @@
 [![build-badge](https://github.com/gao-lab/SLAT/actions/workflows/build.yml/badge.svg)](https://github.com/gao-lab/SLAT/actions/workflows/build.yml)
 [![license-badge](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![docs-badge](https://readthedocs.org/projects/slat/badge/?version=latest)](https://slat.readthedocs.io/en/latest/?badge=latest)
-
-<!-- [![pypi-badge](https://img.shields.io/pypi/v/<name>)](https://pypi.org/project/<name>) -->
-
+[![pypi-badge](https://img.shields.io/pypi/v/scslat)](https://pypi.org/project/scslat)
 <!-- [![conda-badge](https://anaconda.org/bioconda/<name>/badges/version.svg)](https://anaconda.org/bioconda/<name>) -->
 
 # scSLAT: single cell spatial alignment tools
-
 **scSLAT** package implements the **SLAT** (**S**patial **L**inked **A**lignment **T**ool) model to align single cell spatial omics data.
 
 ![Model architecture](docs/_static/Model.png)
@@ -31,24 +28,33 @@
 ```
 
 ## Tutorial
-
-Tutorial of `scSLAT` is [here](https://slat.readthedocs.io/en/latest/), if you have any question please open an issue on github
-
+Tutorial of `scSLAT` is [here](https://slat.readthedocs.io/en/latest/tutorials.html), if you have any question please open an issue on github
 
 <img src='docs/_static/imgalignment.gif' width='400'>
 
-## Installation
-### Docker
 
+## Installation
+
+### Docker
 Dockerfile of `scSLAT` is available at [`env/Dockerfile`](env/Dockerfile). You can also pull the docker image directly from [here](https://hub.docker.com/repository/docker/huhansan666666/slat) by :
 ```
 docker pull huhansan666666/slat:latest
 ```
 
-### Development
+### PyPI
 > Installing `scSLAT` within a new [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) is recommended.
+
+First, we create a clean environment and install `scSLAT` from PyPI. We need install dependency `torch` before install `pyg`.
+
 > Warning: machine with old NVIDIA driver may raise error, please update NVIDIA driver to the latest version or use Docker.
 
+```bash
+conda create -n scSLAT python=3.8 -y && conda activate scSLAT
+pip install "scSLAT[torch]"
+pip install "scSLAT[pyg]"
+```
+
+### Development version
 For development purpose, clone this repo and install:
 
 ```bash
@@ -58,24 +64,11 @@ pip install -e ".[torch]"
 pip install -e ".[pyg,dev,doc]"
 ```
 
-### PyPI  (Ongoing)
-
-Fist we create a clean environment and install `scSLAT` from PyPI:
-
-> We need install dependency `torch` before install `pyg`.
-
-```bash
-conda create -n scSLAT python=3.8 -y && conda activate scSLAT
-pip install scSLAT[torch]
-pip install scSLAT[pyg]
-```
-
 ### Conda (Ongoing)
-
 We plan to provide a conda package of `scSLAT` in the near future.
 
-## Reproduce manuscript results
 
+## Reproduce manuscript results
 1. Please follow the [`env/README.md`](env/README.md) to install all dependencies. Please checkout the repository to v0.1.0 before install `scSLAT`:
 
 ```

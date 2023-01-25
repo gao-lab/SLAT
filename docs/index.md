@@ -45,7 +45,7 @@ Preparing
 To get started with ``scSLAT``, check out our {doc}`installation guide <install>` and {doc}`tutorials <tutorials>`.
 
 ## Contributing to scSLAT
-Single-cell spatial omics is still developing rapidly. We are happy about your contributions! Please submit Pull requests on our [Github Repo](https://github.com/gao-lab/SLAT) .We think your contribution will make a big difference to community!
+Single-cell spatial omics is still developing rapidly. We are happy about your contributions! Please submit Pull requests on our [Github Repo](https://github.com/gao-lab/SLAT). We think your contribution will make a big difference to community!
 
 
 ```{eval-rst}

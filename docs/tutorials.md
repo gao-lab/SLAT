@@ -4,24 +4,33 @@
 We provide following tutorials for you to get started quickly.
 
 ## Basic Usage
-We will show you how to use ``SLAT`` to align single cell spatial data. You can find core functions of ``SLAT`` in this tutorial.
-
-## Multi-data alignment
+### Two slices alignment
+We  show how to use ``SLAT`` to align two spatial slices. You can find basic usages of ``SLAT`` in this tutorial.
+### Multiple slices alignment
 ``SLAT`` can also align multiple datasets once, which is important for 3D structure reconstruction.
-
-## Time-series alignment
-In this tutorial, we focus on find dynamic regions in embryo development by ``SLAT``.
-
-<!-- ```{eval-rst}
-.. toctree::
-    vignette.ipynb
-``` -->
 
 ```{eval-rst}
 .. nbgallery::
     tutorials/basic_usage.ipynb
     tutorials/multi_datasets.ipynb
-    tutorials/times_series.ipynb
-    tutorials/pre_match.ipynb
+```
 
+## Heterogeneous alignment
+### Cross-technology alignment
+We show how to use ``SLAT`` to align heterogeneous 10x Visium and 10x Xenium data in this tutorial.
+### Define spatial dynamics regions
+In this tutorial, we focus on finding dynamic regions in embryo development via ``SLAT``.
+
+```{eval-rst}
+.. nbgallery::
+    tutorials/cross_technology.ipynb
+    tutorials/times_series.ipynb
+```
+
+## Pre-match (Optional)
+We show how does pre-match function work in this tutorial.
+
+```{eval-rst}
+.. nbgallery::
+    tutorials/pre_match.ipynb
 ```
