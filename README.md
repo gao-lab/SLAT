@@ -69,7 +69,7 @@ We plan to provide a conda package of `scSLAT` in the near future.
 
 
 ## Reproduce manuscript results
-1. Please follow the [`env/README.md`](env/README.md) to install all dependencies. Please checkout the repository to v0.1.0 before install `scSLAT`:
+1. Please follow the [`env/README.md`](env/README.md) to install all dependencies. Please checkout the repository to v0.2.0 before install `scSLAT`:
 
 ```
 git clone git@github.com:gao-lab/SLAT.git

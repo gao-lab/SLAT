@@ -1,11 +1,3 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
 import sys
 from pathlib import Path
 
@@ -15,16 +7,14 @@ sys.path.insert(0, str(ROOT))
 from docs.utils import _get_thumbnails
 
 copyright = 'Gao Lab@2022'
-author = 'Xia Chen-rui'
+author = 'Chen-rui Xia'
 
-
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.napoleon',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
@@ -49,9 +39,17 @@ nbsphinx_thumbnails = {
     "tutorials/pre_match": "_static/gallery_thumb/pre_match.png",
 }
 
-
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+html_show_sourcelink = True
+set_type_checking_flag = True
+typehints_fully_qualified = True
+napoleon_use_rtype = False
+autosummary_generate = True
+autosummary_generate_overwrite = True
+autodoc_preserve_defaults = True
+autodoc_inherit_docstrings = True
+autodoc_default_options = {
+    'autosummary': True
+}
 
 html_theme = 'sphinx_rtd_theme'
 html_favicon = '_static/SLAT.ico'
@@ -86,3 +84,9 @@ qualname_overrides = {
     'torch.device': 'torch.torch.device',
     'torch.nn.modules.module.Module': 'torch.nn.Module'
 }
+
+# For interactive plot in plotly
+html_js_files = [
+    "require.min.js",  # Add to your _static
+    "custom.js",
+]

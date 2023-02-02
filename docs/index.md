@@ -1,5 +1,5 @@
 ```{include} ../README.md
-:end-line: 10
+:end-line: 9
 ```
 
 ```{eval-rst}
@@ -15,7 +15,7 @@
    :caption: Contents:
 ```
 
-**scSLAT** package implements the **SLAT** (**S**patially-**L**inked **A**lignment **T**ool) model, which aims to align single cell spatial data fast and accurate. scSLAT can extend to large dataset and various omics data easily.
+``scSLAT`` package implements the **SLAT** (**S**patially-**L**inked **A**lignment **T**ool) model, which aims to align heterogeneous single cell spatial data fast and accurately. scSLAT works well on various spatial technologies (such as Visium, MERFISH, Stereo-seq, seqFISH, Xenium) and can extend to large datasets easily.
 
 ```{eval-rst}
 .. image:: _static/Model.png
@@ -25,23 +25,21 @@
 
 ## Key applications of scSLAT
 
-- **Heterogeneous** alignment:
-    - **Cross technologies align**: such as Stereo-seq and MERFISH, Visium and Xenium.
-    - **Multi modalities align**: such as spatial-ATAC-seq and Stereo-seq. 
-    - **Define spatial dynamics**: such as revealing spatial-temporal changes in time-series developmental datasets.
+1. **Heterogeneous alignment**: as the first algorithm designed for heterogeneous spatial alignment, scSLAT enable
 
-- **Fast**: SLAT can precisely align large single cell spatial dataset with 100,000+ cells in few **seconds**.
+    * **Cross technologies alignment**: such as Stereo-seq and MERFISH, Visium and Xenium.
+    * **Multi modalities alignment**: such as spatial-ATAC-seq and Stereo-seq (cooperate with our previous work [scglue](https://scglue.readthedocs.io/en/latest/)). 
+    * **Define spatial dynamics**: such as revealing spatial-temporal changes in time-series developmental datasets.
 
-- **3D reconstruction** of multiple continuous spatial datasets
+2. **Atlas alignment**: precisely align large single cell spatial atlas containing 200,000+ cells less than 3 minutes.
+
+3. **3D reconstruction**: align multiple continuous spatial slices in parallel to rebuild 3D.
 
 ```{eval-rst}
 .. image:: _static/imgalignment.gif
    :width: 300
    :alt: Alignment result
 ```
-
-## Manuscript
-Preparing
 
 ## Getting started with scSLAT
 To get started with ``scSLAT``, check out our {doc}`installation guide <install>` and {doc}`tutorials <tutorials>`.

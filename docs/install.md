@@ -13,8 +13,6 @@ Install in machine with old NVIDIA driver may raise error, please update NVIDIA 
 ```bash
 conda create -n scSLAT python=3.8 -y && conda activate scSLAT
 
-git clone git@github.com:gao-lab/SLAT.git
-cd SLAT
 pip install "scSLAT[torch]"
 pip install "scSLAT[pyg]"
 ```
