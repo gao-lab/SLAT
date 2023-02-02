@@ -45,27 +45,27 @@ method:
   # - PCA
   - Seurat
   - Harmony
-  - SLAT_harmony
+  # - SLAT_harmony
   - SLAT_dpca
-  - SLAT
+  # - SLAT
   - PASTE
   - STAGATE
 
 method_3d:
   - Seurat
   - Harmony
-  - SLAT_harmony
+  # - SLAT_harmony
   - SLAT_dpca
-  - SLAT
+  # - SLAT
   - PASTE
   - STAGATE
 
 method_split:
-  - PCA
+  # - PCA
   - Seurat
   - Harmony
-  - SLAT_harmony
+  # - SLAT_harmony
   - SLAT_dpca
-  - SLAT
+  # - SLAT
   - STAGATE
   - PASTE

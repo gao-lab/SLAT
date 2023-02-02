@@ -5,6 +5,7 @@
 
 ## v0.2.0
 Here are major changes in v0.2.0:
+
 - Speed up the graph building.
 - Set default embedding method to `DPCA`.
 - Fix bugs on plotting and 3D reconstruction.

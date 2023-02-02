@@ -25,11 +25,13 @@
 
 ## Key applications of scSLAT
 
-- **Heterogeneous** alignment 
-   - **Cross technologies align**: such as Stereo-seq and MERFISH, Visium and Xenium.
-   - **Multi modalities align**: such as spatial-ATAC-seq and Stereo-seq. 
-   - **Define spatial dynamics**: such as revealing spatial-temporal changes in time-series developmental datasets.
-- **Fast**: SLAT can precisely align large single cell spatial dataset with 100,000+ cells  in few **seconds**.
+- **Heterogeneous** alignment:
+    - **Cross technologies align**: such as Stereo-seq and MERFISH, Visium and Xenium.
+    - **Multi modalities align**: such as spatial-ATAC-seq and Stereo-seq. 
+    - **Define spatial dynamics**: such as revealing spatial-temporal changes in time-series developmental datasets.
+
+- **Fast**: SLAT can precisely align large single cell spatial dataset with 100,000+ cells in few **seconds**.
+
 - **3D reconstruction** of multiple continuous spatial datasets
 
 ```{eval-rst}

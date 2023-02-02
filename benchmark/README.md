@@ -3,8 +3,8 @@ We benchmark with following methods
 | Method  | Graph based | For spatial | Cross platform |
 | ------- | ----------- | ----------- | -------------- |
 | SLAT    | yes         | yes         | yes            |
-| STAGATE | yes         | yes         | no             |
 | PASTE   | no          | yes         | no             |
+| STAGATE | yes         | yes         | no             |
 | Seurat  | no          | no          | yes            |
 | Harmony | no          | no          | yes            |
 
@@ -19,9 +19,13 @@ Due to we can not know ground truth between real spatial datasets, so we newly d
 
 We benchmark on following datasets:
 > NOTE: Dataset download links are available at [`../data/README.md`](../data/README.md)
-- 10x Visium--Brain(DLPFC)--3k cells
-- Stereo_seq--Whole embryo(15.5 day)--4k cells
-- MERFISH--Brain(hypothalamic preoptic)--100k cells
+
+| Index | Paper                                                        | Species | Tissue                                       | Technology   | Resolution | Cells/Spots | Genes | Download                                                     |
+| ----- | ------------------------------------------------------------ | ------- | -------------------------------------------- | ------------ | ---------- | ----------- | ----- | ------------------------------------------------------------ |
+| 1     | [Kristen et al.](https://www.nature.com/articles/s41593-020-00787-0) | Human   | Brain(dorsolateral prefrontal cortex, DLPFC) | 10x Visium   | 50μm       | ~3500       |  >20,000    | [website](https://github.com/LieberInstitute/spatialLIBD)    |
+| 2     | [Jeffrey et al.](https://www.science.org/doi/10.1126/science.aau5324) | Mouse   | Brain(hypothalamic preoptic)                 | MERFISH      | subcellular    | ~6,500      | 151   | [website](https://datadryad.org/stash/dataset/doi:10.5061/dryad.8t8s248) |
+| 3     | [Chen et al.](https://doi.org/10.1016/j.cell.2022.04.003)    | Mouse   | Whole embryo                                 | Stereo-seq   | 0.2μm      | 5000-100,000     |  >20,000    | [website](https://db.cngb.org/stomics/mosta/download.html)   |
+
 
 
 # Run
