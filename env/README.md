@@ -1,14 +1,16 @@
-# More complex env config
-## Benchmark env
-If you want repeat our whole benchmark and evaluation workflow, please configure environment as follow, you need to install extra packages such as:
+# Env for reproducing
+If you want repeat our whole benchmark and evaluation workflow, please configure environment as follow.
+
+## Python env
+First, you need to install extra Python packages such as:
 - snakemake
 - papermill
 - jupyter
-- dill
-- parse
 
-> NOTE: Do **NOT** change install order !
-```
+> **Warning**
+> Do **NOT** change install order !
+
+```bash
 mamba create -p ./conda python==3.8 -y && conda activate ./conda
 mamba install pytorch=1.11.0 torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
 mamba install pyg -c pyg -y
@@ -18,64 +20,40 @@ mamba install -c bioconda -c conda-forge snakemake==7.12.0 tabulate==0.8.10 -y
 
 git clone git@github.com:gao-lab/SLAT.git
 cd SLAT
-pip install -e ".[torch]"
-pip install -e ".[pyg,dev,doc]"
+git checkout tags/v0.2.0
+pip install -e ".[dev,doc]"
 ```
-And then you also should configure `R` environment as below. 
 
 ## R env
-We strong recommend to compile a **new** R without rather than use environment manage tools (conda, pakrat, renv). We use `R-4.1.3`, but `R` version > 4 may be enough.
+### STEP 1: Install R
+You also should configure `R` environment. We strong recommend to compile a **new** `R-4.1.3` rather than install R in conda.
 
-> NOTE: Please make sure you have **deactivated** any conda env before using `R`
+> **Warning**
+> Please make sure you have **deactivated** any conda env before using `R`
 
-```
-cd resource
+```bash
+cd SLAT/resource
 wget https://cran.r-project.org/src/base/R-4/R-4.1.3.tar.gz
 tar -xzvf R-4.1.3.tar.gz && cd R-4.1.3 && 
-  ./configure --without-x --with-cairo --with-libpng --with-libtiff --with-jpeglib --enable-R-shlib --prefix={your path} &&
+  ./configure --without-x --with-cairo --with-libpng --with-libtiff --with-jpeglib --enable-R-shlib --prefix={YOUR_PATH} &&
    make && make install
 ```
 
-Please install R packages in specific version from `renv.lock` (nedd install `renv` first)
+### STEP 2: Register R kernel
+Then register the jupyter kernel for `R` so snakemake can call `R` in benchmark workflow.
 ```R
-install.packages('renv')
-renv::restore()
-```
-You can manually install following packages:
-
-- Seurat (4.1.1)
-- reticulate (any version)
-- IRkernel (any version)
-- tidyverse (any version)
-- data.table (any version)
-- yaml (any version)
-- ggpubr (any version)
-
-
-Then register the jupyter kernel for `R` so that we can call `R` in benchmark workflow.
-```
+install.packages('IRkernel')
 IRkernel::installspec(name = 'slat_r', displayname = 'slat_r')
 ```
 
-Before running snakemake, you should install `IRkernel` again outside of `renv` env, so that `papermill` can call `R` kernel before `renv` env initialization.
-
-
-## Slurm env
-We failed to install `torch_geometric` via conda in slurm cluster. If you meet similar problem please use `pip` instead.
+### STEP 3: Install R packages
+At last, please install all R packages we used from `renv.lock` (see [`renv`](https://rstudio.github.io/renv/articles/renv.html)).
+```R
+install.packages('renv')
+install.packages('IRkernel')
+renv::restore()
 ```
-mamba create -p ./conda python==3.8 -y && conda activate ./conda
-pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113
-pip install pytorch-lightning
-pip install torch-scatter -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
-pip install torch-sparse -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
-pip install torch-cluster -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
-pip install torch-geometric
 
-mamba install -c conda-forge papermill parse jupyter dill -y 
-mamba install -c bioconda -c conda-forge snakemake==7.12.0 tabulate==0.8.10 -y
-
-git clone git@github.com:gao-lab/SLAT.git
-cd SLAT
-pip install -e ".[torch]"
-pip install -e ".[pyg,dev,doc]"
-```
+## System env
+### Singularity
+You also need install [`singularity`](https://docs.sylabs.io/guides/3.0/user-guide/index.html), because we use container to ensure the repeatability.

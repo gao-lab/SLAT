@@ -6,8 +6,8 @@
 ## v0.2.0
 Here are major changes in v0.2.0:
 
-* Speed up the graph building.
-* Set default embedding method to `DPCA`.
-* Fix bugs on plotting and 3D reconstruction.
-* Provide [docker image](https://hub.docker.com/repository/docker/huhansan666666/slat).
-* Add more benchmarks and case studies.
+1. Speed up the graph building.
+2. Set default embedding method to `DPCA`.
+3. Fix bugs on plotting and 3D reconstruction.
+4. Provide [docker image](https://hub.docker.com/repository/docker/huhansan666666/slat).
+5. Add more benchmarks and case studies.

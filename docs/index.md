@@ -25,15 +25,15 @@
 
 ## Key applications of scSLAT
 
-1. **Heterogeneous alignment**: as the first algorithm designed for heterogeneous spatial alignment, scSLAT enable
+1. **Heterogeneous alignment**: as the first method designed for heterogeneous spatial alignment, scSLAT enables
 
-    * **Cross technologies alignment**: such as Stereo-seq and MERFISH, Visium and Xenium.
-    * **Multi modalities alignment**: such as spatial-ATAC-seq and Stereo-seq (cooperate with our previous work [scglue](https://scglue.readthedocs.io/en/latest/)). 
-    * **Define spatial dynamics**: such as revealing spatial-temporal changes in time-series developmental datasets.
+    * **Cross technologies alignment**: Stereo-seq and MERFISH, Visium and Xenium, ...
+    * **Multi modalities alignment**: spatial-ATAC-seq and Stereo-seq (with our previous work [scglue](https://scglue.readthedocs.io/en/latest/)). 
+    * **Defining development changes**: revealing spatial-temporal changes in time-series developmental datasets.
 
-2. **Atlas alignment**: precisely align large single cell spatial atlas containing 200,000+ cells less than 3 minutes.
+2. **Atlas alignment**: precisely align large single cell spatial atlas (200,000+ cells) in 3 minutes.
 
-3. **3D reconstruction**: align multiple continuous spatial slices in parallel to rebuild 3D.
+3. **3D reconstruction**: align multiple continuous spatial slices in parallel to rebuild 3D structure.
 
 ```{eval-rst}
 .. image:: _static/imgalignment.gif
