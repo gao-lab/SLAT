@@ -104,28 +104,28 @@ class match_3D():
         plt.axis('off')
         plt.show()
         
-    def draw_lines(self, slices, matching:np.ndarray,ax) -> None:
-        r"""
-        Draw lines between paired cells in two datasets
-                
-        Parameters:
-        -----------
-        slices
-            List of spatial coordinates
-        matching
-            Matching pairs
+    def draw_lines(self, slices, matching:np.ndarray, ax) -> None:
         """
-        for i in range(matching.shape[1]):
+        Draw lines between paired cells in two datasets.
+
+        Parameters
+        ----------
+        slices : List[np.ndarray]
+            List of spatial coordinates.
+        matching : np.ndarray
+            Matching pairs.
+        ax : Axes3D
+            3D plot axis.
+        """
+        for pair, slice0, slice1 in zip(matching.T, slices[0].T, slices[1].T):
             color = 'grey'
-            if isinstance(self.matching_info,pd.DataFrame) and self.matching_info['h1'][i]:
+            if isinstance(self.matching_info, pd.DataFrame) and self.matching_info['h1'][pair[0]]:
                 color = '#ade8f4'
-            elif isinstance(self.matching_info,pd.DataFrame) and self.matching_info[f'h{self.k}'][i]:
-                    color = '#588157'
+            elif isinstance(self.matching_info, pd.DataFrame) and self.matching_info[f'h{self.k}'][pair[0]]:
+                color = '#588157'
             else:
                 color = '#ffafcc'
-            pair = matching[:,i]
-            point0 = np.append(slices[0][:,pair[0]],0)
-            point1 = np.append(slices[1][:,pair[1]],1)
-            coord = np.row_stack((point0,point1))
-            ax.plot(coord[:,0], coord[:,1], coord[:,2], color = color, linestyle="dashed",linewidth=0.3)
-            
+            point0 = np.append(slice0, 0)
+            point1 = np.append(slice1, 1)
+            coord = np.row_stack((point0, point1))
+            ax.plot(coord[:, 0], coord[:, 1], coord[:, 2], color=color, linestyle="dashed", linewidth=0.3)
