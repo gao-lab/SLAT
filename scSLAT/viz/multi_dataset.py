@@ -3,6 +3,7 @@ Vis multi dataset and their connection
 """
 from typing import List, Mapping, Optional, Union
 import random
+import math
 
 from anndata import AnnData
 from sklearn.metrics.pairwise import euclidean_distances
@@ -12,23 +13,41 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
+from .color import *
 
-def random_color(n=1,seed:int=0):
+
+def get_color(n=1, cmap:str='scanpy', seed:int=0):
     r"""
-    Get color randomly
+    Get color 
     
     Parameters
     ---------
     n
         number of colors you want
+    cmap
+        color map (use same with scanpy)
     seed
-        seed to duplicate
+        random seed to duplicate
     """
-    random.seed(seed)
-    if n==1:
-        return "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-    elif n>1 :
-        return ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(n)]
+    if cmap == 'scanpy' and n <= 10:
+        step = 10 // n
+        return vega_10_scanpy[::step][:n]
+    elif cmap == 'scanpy' and n <= 20 :
+        step = 20 // n
+        return vega_20_scanpy[::step][:n]
+    elif cmap == 'scanpy' and n <= 28:
+        step = 28 // n
+        return zeileis_28[::step][:n]
+    elif cmap == 'scanpy' and n <= 102:
+        step = 102 // n
+        return godsnot_102[::step][:n]
+    else:
+        print('WARNING: Using random color')
+        random.seed(seed)
+        if n==1:
+            return "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+        elif n>1 :
+            return ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(n)]
 
 
 class build_3D():
@@ -110,7 +129,7 @@ class build_3D():
         ax = fig.add_subplot(111, projection='3d')
         ax.set_box_aspect([5,5,8])
         # color by different cell types
-        color = random_color(len(self.celltypes))
+        color = get_color(len(self.celltypes))
         c_map = {}
         for i, celltype in enumerate(self.celltypes):
             c_map[celltype] = color[i]
@@ -134,7 +153,7 @@ class build_3D():
                 cell0_coord = self.loc_list[j][cell0_index,:]
                 cell1_coord = self.loc_list[j+1][cell1_index,:]
                 coord = np.row_stack((cell0_coord,cell1_coord))
-                ax.plot(coord[:,0], coord[:,1], [height*j,height*(j+1)], color=line_color,
+                ax.plot(coord[:,0], coord[:,1], [height*j, height*(j+1)], color=line_color,
                         linestyle="dashed", linewidth=line_width,alpha=line_alpha)
 
         if hide_axis:
@@ -201,9 +220,10 @@ class match_3D_multi():
         assert all(item in dataset_B.columns.values for item in ['index','x','y'])
         
         if meta:
-            self.celltypes = set(self.dataset_A[meta].append(self.dataset_B[meta]))
             set1 = list(set(self.dataset_A[meta]))
             set2 = list(set(self.dataset_B[meta]))
+            self.celltypes = set1 + [x for x in set2 if x not in set1]
+            self.celltypes.sort() # make sure celltypes are in the same order
             overlap = [x for x in set2 if x in set1]
             print(f"dataset1: {len(set1)} cell types; dataset2: {len(set2)} cell types; \n\
                     Total :{len(self.celltypes)} celltypes; Overlap: {len(overlap)} cell types \n\
@@ -239,6 +259,7 @@ class match_3D_multi():
                 line_alpha: Optional[float]=0.7,
                 hide_axis: Optional[bool]=False,
                 show_error: Optional[bool]=True,
+                show_celltype: Optional[bool]=False,
                 cmap: Optional[bool]='Reds',
                 save:Optional[str]=None
         ) -> None:
@@ -274,7 +295,7 @@ class match_3D_multi():
         ax = fig.add_subplot(111, projection='3d')
         # color by meta
         if self.meta:
-            color = random_color(len(self.celltypes))
+            color = get_color(len(self.celltypes))
             c_map = {}
             for i, celltype in enumerate(self.celltypes):
                 c_map[celltype] = color[i]
@@ -291,20 +312,19 @@ class match_3D_multi():
                     ys = slice['y']
                     zs = i
                     if self.expr:
-                        ax.scatter(xs, ys, zs, s=point_size[i], c=slice[self.expr], cmap=c_map,norm=norm)
+                        ax.scatter(xs, ys, zs, s=point_size[i], c=slice[self.expr], cmap=c_map, norm=norm)
                     else:
                         ax.scatter(xs, ys, zs, s=point_size[i], c=c_map[cell_type])
-                    
-        # plot points  without meta
+        # plot points without meta
         else:
             for i, dataset in enumerate(self.datasets):
                 xs = dataset['x']
                 ys = dataset['y']
                 zs = i
                 ax.scatter(xs,ys,zs,s=point_size[i])
-        
         # plot line
-        self.draw_lines(ax, show_error, line_color, line_width, line_alpha)
+        self.c_map = c_map
+        self.draw_lines(ax, show_error, show_celltype, line_color, line_width, line_alpha)
         if hide_axis:
             plt.axis('off')
         if save != None:
@@ -312,7 +332,7 @@ class match_3D_multi():
         plt.show()
 
         
-    def draw_lines(self, ax, show_error, default_color, line_width=0.3, line_alpha=0.7) -> None:
+    def draw_lines(self, ax, show_error, show_celltype, default_color, line_width=0.3, line_alpha=0.7) -> None:
         r"""
         Draw lines between paired cells in two datasets
         """
@@ -322,21 +342,23 @@ class match_3D_multi():
             pair = self.matching[:,i]
             default_color = default_color
             if self.meta != None:
-                if self.dataset_B.loc[self.dataset_B['index']==pair[0], self.meta].astype(str).values ==\
-                    self.dataset_A.loc[self.dataset_A['index']==pair[1], self.meta].astype(str).values:
-                    color = '#ade8f4' # blue
-                else:
-                    color = '#ffafcc'  # red
-                # if self.conf:
-                #     if color == '#ade8f4' and not self.conf[i]: # low reliability but right
-                #         color = '#588157' # green
-                #     elif color == '#ffafcc' and self.conf[i]: # high reliability but error
-                #         color = '#ffb703' # yellow
-                
+                celltype1 = self.dataset_A.loc[self.dataset_A['index']==pair[1], self.meta].astype(str).values[0]
+                celltype2 = self.dataset_B.loc[self.dataset_B['index']==pair[0], self.meta].astype(str).values[0]
+                if show_error:
+                    if celltype1 == celltype2:
+                        color = '#ade8f4' # blue
+                    else:
+                        color = '#ffafcc'  # red
+                if show_celltype:
+                    if celltype1 == celltype2:
+                        color = self.c_map[celltype1]
+                    else:
+                        color = '#696969' # celltype1 error match color
             point0 = np.append(self.dataset_A[self.dataset_A['index']==pair[1]][['x','y']], 0)
             point1 = np.append(self.dataset_B[self.dataset_B['index']==pair[0]][['x','y']], 1)
-            coord = np.row_stack((point0,point1))
-            color = color if show_error else default_color
+
+            coord = np.row_stack((point0, point1))
+            color = color if show_error or show_celltype else default_color
             ax.plot(coord[:,0], coord[:,1], coord[:,2], color=color, linestyle="dashed", linewidth=line_width, alpha=line_alpha)
 
 
@@ -484,7 +506,7 @@ class match_3D_celltype(match_3D_multi):
         if type(self.highlight_line) == list and len(self.highlight_line) >= len(color_index):
             cmap = self.highlight_line
         else:
-            cmap = random_color(len(color_index)) if len(color_index) > 1 else [random_color(len(color_index))]
+            cmap = get_color(len(color_index)) if len(color_index) > 1 else [get_color(len(color_index))]
         
         for i in range(self.matching.shape[1]):
             pair = self.matching[:,i]
@@ -501,7 +523,6 @@ class match_3D_celltype(match_3D_multi):
                 ax.scatter(point1[0],point1[1],point1[2],color=self.highlight_cell,alpha=1,s=1)
             color = color if show_error else default_color
             ax.plot(coord[:,0], coord[:,1], coord[:,2], color=color, linestyle="dashed",linewidth=line_width, alpha=line_alpha)
-
 
 
 def Sankey(matching_table:pd.DataFrame,
@@ -604,9 +625,9 @@ def multi_Sankey(matching_tables:List[pd.DataFrame],
                     value.append(int(matching_table.iloc[i,j]))
                     
     if color == 'random':
-        color = [random_color()]*matching_tables[0].shape[0]
+        color = [get_color()]*matching_tables[0].shape[0]
         for matching_table in matching_tables:
-            color += [random_color()]*matching_table.shape[1]
+            color += [get_color()]*matching_table.shape[1]
 
     fig = go.Figure(data=[go.Sankey(
         node = dict(

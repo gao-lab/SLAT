@@ -5,7 +5,6 @@ from typing import Optional
 import matplotlib.pyplot as plt
 from matplotlib import colors
 
-from .single_dataset import *
 from .multi_dataset import *
 
 

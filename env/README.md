@@ -4,24 +4,15 @@ If you want repeat our whole benchmark and evaluation workflow, please configure
 ## Python env
 First, you need to install extra Python packages such as:
 - snakemake
-- papermill
-- jupyter
-
-> **Warning**
-> Do **NOT** change install order !
 
 ```bash
 mamba create -p ./conda python==3.8 -y && conda activate ./conda
-mamba install pytorch=1.11.0 torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
-mamba install pyg -c pyg -y
-
-mamba install -c conda-forge papermill parse dill jupyter -y 
 mamba install -c bioconda -c conda-forge snakemake==7.12.0 tabulate==0.8.10 -y
 
 git clone git@github.com:gao-lab/SLAT.git
 cd SLAT
-git checkout tags/v0.2.0
-pip install -e ".[dev,doc]"
+pip install -e ".[dev,docs]"
+pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.0.0+cu117.html
 ```
 
 ## R env

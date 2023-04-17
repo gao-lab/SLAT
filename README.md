@@ -46,19 +46,16 @@ docker pull huhansan666666/slat:latest
 > **Note**
 > Installing `scSLAT` within a new [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) is recommended.
 
-First, we create a clean environment and install `scSLAT` from PyPI. We need install dependency `torch` before install `pyg`.
+First, we create a clean environment and install `scSLAT` from PyPI. Then we also need install dependencies for `pyg` manually. We default install with CUDA 11.7. Please refer [here](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html#quick-start) for CPU version or different CUDA versions.
 
 > **Warning**
 > old NVIDIA driver may raise error, please update NVIDIA driver to the latest version.
 
 ```bash
 conda create -n scSLAT python=3.8 -y && conda activate scSLAT
-pip install "scSLAT[torch]"
-pip install "scSLAT[pyg]"
+pip install scSLAT
+pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.0.0+cu117.html
 ```
-
-> **Note**
-> Some dependencies such as `torch-scatter` need to compile from source, which may take a long time. Please refer our solution to accelerate the install [here](https://slat.readthedocs.io/en/latest/install.html)
 
 ### Development version
 For development purpose, clone this repo and install:
@@ -66,8 +63,8 @@ For development purpose, clone this repo and install:
 ```bash
 git clone git@github.com:gao-lab/SLAT.git
 cd SLAT
-pip install -e ".[torch]"
-pip install -e ".[pyg,dev,doc]"
+pip install -e ".[dev,docs]"
+pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.0.0+cu117.html
 ```
 
 ### Conda (Ongoing)
@@ -75,7 +72,7 @@ We plan to provide a conda package of `scSLAT` in the near future.
 
 
 ## Reproduce manuscript results
-1. Please follow the [`env/README.md`](env/README.md) to install all dependencies. Please checkout the repository to v0.2.0 before install `scSLAT`:
-2. Download and pre-process data follow the [`data/README.md`](data/README.md)
+1. Please follow the [`env/README.md`](env/README.md) to install all dependencies. Please checkout the repository to v0.2.1 before install `scSLAT`.
+2. Download and pre-process data follow the [`data/README.md`](data/README.md).
 3. Whole benchmark and evaluation procedure can be found in [`/benchmark`](benchmark/README.md) and [`/evaluation`](evaluation/README.md), respectively.
 4. Every case study is recorded in the [`/case`](case/README.md) directory in the form of jupyter notebook.

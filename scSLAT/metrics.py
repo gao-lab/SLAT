@@ -215,13 +215,14 @@ def euclidean_dis(adata1:AnnData,
         key of spatial data in adata.obsm
     """
     # reindex adata1 and adata2 by matching then calculate the pairwise euclidean distance
-    if abs(adata1.obsm[spatial_key].max()) > 1 or abs(adata1.obsm[spatial_key].min()) > 1:
-        adata1.obsm['scale_spatial'] = adata1.obsm[spatial_key]/adata1.obsm[spatial_key].max()
-    if abs(adata2.obsm[spatial_key].max()) > 1 or abs(adata2.obsm[spatial_key].min()) > 1:
-        adata2.obsm['scale_spatial'] = adata2.obsm[spatial_key]/adata2.obsm[spatial_key].max()
-    spatial_key = 'scale_spatial'
-    coord1 = adata1.obsm[spatial_key][matching[1,:]]
-    coord2 = adata2.obsm[spatial_key]
+    for adata in [adata1, adata2]:
+        coord = adata.obsm[spatial_key]
+        if abs(coord.ptp()) > 1 or abs(coord.max()) > 1:
+            adata.obsm['scale_spatial'] = (coord - coord.min(0))/coord.ptp(0)
+        else:
+            adata.obsm['scale_spatial'] = coord
+    coord1 = adata1.obsm['scale_spatial'][matching[1,:]]
+    coord2 = adata2.obsm['scale_spatial']
     distance = np.sqrt((coord1[:,0] - coord2[:,0])**2+(coord1[:,1] - coord2[:,1])**2)
     return float(distance.sum()/distance.shape[0])
 

@@ -18,6 +18,9 @@
 *.arrow
 *Weights
 *.sqlite
+*.svg
+*.gz
+*.whl
 
 # folder
 **/conda/
