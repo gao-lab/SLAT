@@ -12,7 +12,7 @@ build:
       - pip install https://data.pyg.org/whl/torch-1.11.0%2Bcpu/torch_scatter-2.0.9-cp38-cp38-linux_x86_64.whl
       - pip install https://data.pyg.org/whl/torch-1.11.0%2Bcpu/torch_sparse-0.6.15-cp38-cp38-linux_x86_64.whl
       - pip install torch-geometric
-      - pip install scSLAT
+      - pip install scSLAT==0.2.0
 sphinx:
   configuration: docs/conf.py
 python:
