@@ -19,6 +19,7 @@
 *Weights
 *.sqlite
 *.svg
+*.png
 *.gz
 *.whl
 

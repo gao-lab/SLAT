@@ -526,6 +526,7 @@ class match_3D_celltype(match_3D_multi):
 
 
 def Sankey(matching_table:pd.DataFrame,
+           filter_num:Optional[int]=50,
            color:Optional[List[str]]='red',
            title:Optional[str]='Sankey plot',
            prefix:Optional[List[str]]=['E11.5','E12.5'],
@@ -539,6 +540,8 @@ def Sankey(matching_table:pd.DataFrame,
     ----------
     matching_tables
         list of matching table
+    filter_num
+        filter number of matches
     color
         color of node
     title
@@ -560,7 +563,7 @@ def Sankey(matching_table:pd.DataFrame,
     
     for i, query in enumerate(label_query):
         for j, ref in enumerate(label_ref):
-            if int(matching_table.iloc[i,j]) > 10:
+            if int(matching_table.iloc[i,j]) > filter_num:
                 target.append(label2index[query])
                 source.append(label2index[ref])
                 value.append(int(matching_table.iloc[i,j]))

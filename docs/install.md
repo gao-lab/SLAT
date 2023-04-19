@@ -45,7 +45,7 @@ pip install -e ".[dev, docs]"
 ## Docker
 Dockerfile of `scSLAT` is available at [`env/Dockerfile`](https://github.com/gao-lab/SLAT/blob/main/env/Dockerfile). You can also pull the docker image from [here](https://hub.docker.com/repository/docker/huhansan666666/slat) by :
 ```
-docker pull huhansan666666/slat:latest
+docker pull huhansan666666/slat:0.2.1
 ```
 
 ## Install from Conda (Ongoing)

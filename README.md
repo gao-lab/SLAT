@@ -39,7 +39,7 @@ Tutorial of `scSLAT` is [here](https://slat.readthedocs.io/en/latest/tutorials.h
 Dockerfile of `scSLAT` is available at [`env/Dockerfile`](env/Dockerfile). You can also pull the docker image directly from [here](https://hub.docker.com/repository/docker/huhansan666666/slat) by:
 
 ``` bash
-docker pull huhansan666666/slat:latest
+docker pull huhansan666666/slat:0.2.1
 ```
 
 ### PyPI
