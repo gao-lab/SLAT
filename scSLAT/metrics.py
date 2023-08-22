@@ -1,7 +1,8 @@
 r"""
 Align metrics
 """
-from typing import List, Optional
+from typing import List, Optional, Union
+from collections import Counter
 
 import numpy as np
 import pandas as pd
@@ -11,6 +12,8 @@ import torch
 import torch.nn.functional as F
 import torch_geometric as pyg
 from anndata import AnnData
+
+from .model.prematch import rotate_via_numpy
 
 
 def hit_k(features:List[torch.Tensor],
@@ -116,10 +119,10 @@ def hit_celltype(source_df:pd.DataFrame,
     return result
 
 
-def global_score(adatas:List[AnnData],
-                 matching: np.ndarray,
-                 biology_meta:Optional[str]='',
-                 topology_meta:Optional[str]=''
+def global_score(adatas: List[AnnData],
+                 matching: Union[np.ndarray, List],
+                 biology_meta: Optional[str]='',
+                 topology_meta: Optional[str]=''
     ) -> float:
     r"""
     Calculate global score, which consider celltype and histology, in two aligned graph (higher means better)
@@ -144,17 +147,31 @@ def global_score(adatas:List[AnnData],
         assert biology_meta in adata.obs.columns or topology_meta in adata.obs.columns
         if biology_meta not in adata.obs.columns:
             adata.obs[biology_meta] = 'Unknown'
-            print(f"Warning! biology_meta not in adata.obs ")
+            print(f"Warning! column {biology_meta} not in adata.obs ")
         if topology_meta not in adata.obs.columns:
             adata.obs[topology_meta] = 'Unknown'
-            print(f"Warning! topology_meta not in adata.obs ")
+            print(f"Warning! column {topology_meta} not in adata.obs ")
         adata.obs['global_meta'] = adata.obs[biology_meta].astype(str) + '-' + adata.obs[topology_meta].astype(str)
     count = 0
-    for i in range(matching.shape[0]): # query dataset
-        query_meta = adatas[1].obs.iloc[i].loc['global_meta']
-        ref_meta = adatas[0].obs.iloc[matching[i,1]].loc['global_meta']
-        count = count + 1 if query_meta == ref_meta else count
-    score = count/adatas[1].shape[0]
+    if isinstance(matching, list):
+        print('Using probabilistic matching')
+        for i in range(len(matching)): # query dataset
+            query_meta = adatas[1].obs.iloc[i].loc['global_meta']
+            ref_meta = adatas[0].obs.iloc[matching[i][1]].loc[:,'global_meta'].to_list()
+            if len(ref_meta) == 0:
+                continue
+            # find the most frequent meta in ref_meta
+            vote = max(ref_meta, key = ref_meta.count)
+            count = count + 1 if query_meta == vote else count
+    elif isinstance(matching, np.ndarray):
+        for i in range(matching.shape[0]): # query dataset
+            query_meta = adatas[1].obs.iloc[i].loc['global_meta']
+            ref_meta = adatas[0].obs.iloc[matching[i,1]].loc['global_meta']
+            count = count + 1 if query_meta == ref_meta else count
+    else:
+        raise ValueError('matching should be list or np.ndarray')
+    score = count / adatas[1].shape[0]
+    del adatas[0].obs['global_meta']
     
     return score
 
@@ -298,3 +315,57 @@ def region_statistics(input,
     """
     intervals = {'{:.3f}~{:.3f}'.format(step *x+start, step *(x+1)+start): 0 for x in range(number_of_interval)} 
     __interval_statistics(input, intervals)
+
+
+def rotation_angle(X, Y, pi, ground_truth:float = 0,
+                    output_angle:bool = True, output_matrix:bool = False
+    ) -> Union[float, Optional[np.ndarray]]:
+    r"""
+    Finds and applies optimal rotation between spatial coordinates of two layers (may also do a reflection).
+
+    Parameters:
+    ----------
+    X
+        np array of spatial coordinates (ex: sliceA.obs['spatial'])
+    Y
+        np array of spatial coordinates (ex: sliceB.obs['spatial'])
+    pi
+        mapping between the two layers output in PASTE format (N x M matching matrix)
+    ground_truth
+        If known, the ground truth rotation angle to use for calculating error.
+    output_angle
+        Boolean of whether to return rotation angle.
+    output_matrix
+        Boolean of whether to return the rotation as a matrix or an angle.
+
+    Returns
+    ----------
+    Aligned spatial coordinates of X, Y, rotation angle, translation of X, translation of Y.
+        
+    Reference
+    ----------
+    Modify from https://github.com/raphael-group/paste/blob/a9b10b24ba33e94a89dd89e8ee5e4900e18b1886/src/paste/visualization.py#L157
+    """
+    assert X.shape[1] == 2 and Y.shape[1] == 2
+    
+    rad = np.deg2rad(ground_truth)
+    X = rotate_via_numpy(X, rad)
+
+    tX = pi.sum(axis=1).dot(X)
+    tY = pi.sum(axis=0).dot(Y)
+    X = X - tX
+    Y = Y - tY
+    H = Y.T.dot(pi.T.dot(X))
+    U, S, Vt = np.linalg.svd(H)
+    R = Vt.T.dot(U.T)
+    Y = R.dot(Y.T).T
+    M = np.array([[0,-1],[1,0]])
+    theta = np.arctan2(np.trace(M.dot(H)), np.trace(H))
+    theta = -np.degrees(theta)
+    delta = np.absolute(theta - ground_truth)
+    if output_angle and not output_matrix:
+        return delta
+    elif output_angle and output_angle:
+        return delta, X, Y, R, tX, tY
+    else:
+        return X, Y

@@ -4,7 +4,7 @@
 Here are major changes in v0.2.1:
 
 1. Update torch version to 2.0.0.
-2. Fix bugs on plot colr map.
+2. Fix bugs on plot palette.
 
 
 ## v0.2.0

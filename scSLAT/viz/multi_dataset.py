@@ -1,14 +1,14 @@
 r"""
 Vis multi dataset and their connection
 """
-from typing import List, Mapping, Optional, Union
 import random
 import math
+from typing import List, Mapping, Optional, Union
 
-from anndata import AnnData
-from sklearn.metrics.pairwise import euclidean_distances
+import scanpy as sc
 import numpy as np
 import pandas as pd
+from anndata import AnnData
 
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
@@ -59,7 +59,7 @@ class build_3D():
     datasets
         list adata of in order
     mappings
-        list of SLAT results
+        list of SLAT matching results
     spatial_key
         obsm key of spatial info
     anno_key
@@ -101,7 +101,8 @@ class build_3D():
                 line_color: Optional[str]='#4169E1',
                 line_alpha: Optional[float]=0.8,
                 hide_axis: Optional[bool]=False,
-                height: Optional[float]=1.0
+                height: Optional[float]=1.0,
+                height_scale: Optional[float]=1.0,
         ) -> None:
         r"""
         Draw 3D picture of two layers
@@ -109,11 +110,11 @@ class build_3D():
         Parameters:
         ----------
         size
-            plt figure size
+            plt figure size (width, height)
         point_size
-            point size of every layer
+            point size of each layer
         point_alpha
-            point alpha of every layer
+            point alpha of each layer
         line_width
             pair line width
         line_color
@@ -127,7 +128,7 @@ class build_3D():
         """
         fig = plt.figure(figsize=(size[0],size[1]))
         ax = fig.add_subplot(111, projection='3d')
-        ax.set_box_aspect([5,5,8])
+        ax.set_box_aspect([1, 1, height_scale * len(self.mappings)])
         # color by different cell types
         color = get_color(len(self.celltypes))
         c_map = {}
@@ -154,7 +155,7 @@ class build_3D():
                 cell1_coord = self.loc_list[j+1][cell1_index,:]
                 coord = np.row_stack((cell0_coord,cell1_coord))
                 ax.plot(coord[:,0], coord[:,1], [height*j, height*(j+1)], color=line_color,
-                        linestyle="dashed", linewidth=line_width,alpha=line_alpha)
+                        linestyle="dashed", linewidth=line_width, alpha=line_alpha)
 
         if hide_axis:
             plt.axis('off')
@@ -244,9 +245,13 @@ class match_3D_multi():
 
         if not subset is None:
             matching = matching[:,subset]
-        subsample_size = subsample_size if matching.shape[1] > subsample_size else matching.shape[1]
-        print(f'Subsample {subsample_size} cell pairs from {matching.shape[1]}')
-        self.matching = matching[:,np.random.choice(matching.shape[1],subsample_size, replace=False)]
+        if matching.shape[1] > subsample_size and subsample_size > 0:
+            self.matching = matching[:,np.random.choice(matching.shape[1],subsample_size, replace=False)]
+        else:
+            subsample_size = matching.shape[1]
+            self.matching = matching
+        print(f'Subsampled {subsample_size} pairs from {matching.shape[1]}')
+        
             
         self.datasets = [self.dataset_A, self.dataset_B]
     
@@ -330,9 +335,8 @@ class match_3D_multi():
         if save != None:
             plt.savefig(save)
         plt.show()
-
         
-    def draw_lines(self, ax, show_error, show_celltype, default_color, line_width=0.3, line_alpha=0.7) -> None:
+    def draw_lines(self, ax, show_error, show_celltype, line_color, line_width=0.3, line_alpha=0.7) -> None:
         r"""
         Draw lines between paired cells in two datasets
         """
@@ -340,7 +344,7 @@ class match_3D_multi():
             if not self.conf is None and self.conf[i] < self.conf_cutoff:
                 continue
             pair = self.matching[:,i]
-            default_color = default_color
+            default_color = line_color
             if self.meta != None:
                 celltype1 = self.dataset_A.loc[self.dataset_A['index']==pair[1], self.meta].astype(str).values[0]
                 celltype2 = self.dataset_B.loc[self.dataset_B['index']==pair[0], self.meta].astype(str).values[0]
@@ -420,7 +424,7 @@ class match_3D_multi_error(match_3D_multi):
         self.mode = mode
         self.highlight_color = highlight_color
         
-    def draw_lines(self,ax,line_width=0.3,line_alpha=0.7) -> None:
+    def draw_lines(self, ax, show_error, show_celltype, default_color, line_width=0.3, line_alpha=0.7) -> None:
         for i in range(self.matching.shape[1]):
             pair = self.matching[:,i]
             if self.dataset_B.loc[self.dataset_B['index']==pair[0], 'celltype'].astype(str).values ==\
@@ -501,12 +505,15 @@ class match_3D_celltype(match_3D_multi):
         self.highlight_line = highlight_line
         self.highlight_cell = highlight_cell
         
-    def draw_lines(self,ax,show_error,default_color,line_width=0.3,line_alpha=0.7)-> None:
-        color_index = self.highlight_celltype[0] if len(self.highlight_celltype[0]) >= len(self.highlight_celltype[1]) else self.highlight_celltype[1]
+    def draw_lines(self, ax, show_error, show_celltype, default_color, line_width:float=0.3, line_alpha:float=0.7)-> None:
+        if len(self.highlight_celltype[0]) >= len(self.highlight_celltype[1]):
+            color_index = self.highlight_celltype[0]
+        else:
+            color_index = self.highlight_celltype[1]
         if type(self.highlight_line) == list and len(self.highlight_line) >= len(color_index):
             cmap = self.highlight_line
         else:
-            cmap = get_color(len(color_index)) if len(color_index) > 1 else [get_color(len(color_index))]
+            cmap = get_color(len(color_index))
         
         for i in range(self.matching.shape[1]):
             pair = self.matching[:,i]
@@ -514,25 +521,34 @@ class match_3D_celltype(match_3D_multi):
             b = self.dataset_B.loc[self.dataset_B['index']==pair[0], self.meta].astype(str).values
             if a not in self.highlight_celltype[0] or b not in self.highlight_celltype[1]:
                 continue
-            color = cmap[color_index.index(a)] if len(self.highlight_celltype[0]) >= len(self.highlight_celltype[1]) else cmap[color_index.index(b)]
             point0 = np.append(self.dataset_A[self.dataset_A['index']==pair[1]][['x','y']], 0)
             point1 = np.append(self.dataset_B[self.dataset_B['index']==pair[0]][['x','y']], 1)
             coord = np.row_stack((point0,point1))
             if self.highlight_cell:
                 ax.scatter(point0[0],point0[1],point0[2],color=self.highlight_cell,alpha=1,s=1)
                 ax.scatter(point1[0],point1[1],point1[2],color=self.highlight_cell,alpha=1,s=1)
-            color = color if show_error else default_color
-            ax.plot(coord[:,0], coord[:,1], coord[:,2], color=color, linestyle="dashed",linewidth=line_width, alpha=line_alpha)
+            if isinstance(cmap, list):
+                color = cmap[color_index.index(a)] if len(self.highlight_celltype[0]) >= len(self.highlight_celltype[1]) else cmap[color_index.index(b)]
+            else:
+                color = cmap
+            color = color if show_error else self.highlight_line
+            ax.plot(coord[:,0], coord[:,1], coord[:,2], color=color, linestyle="dashed", linewidth=line_width, alpha=line_alpha)
 
 
 def Sankey(matching_table:pd.DataFrame,
            filter_num:Optional[int]=50,
            color:Optional[List[str]]='red',
-           title:Optional[str]='Sankey plot',
+           title:Optional[str]='',
            prefix:Optional[List[str]]=['E11.5','E12.5'],
            layout:Optional[List[int]]=[1300,900],
            font_size:Optional[float]=15,
-           font_color:Optional[str]='Black'):
+           font_color:Optional[str]='Black',
+           save_name:Optional[str]=None,
+           format:Optional[str]='png',
+           width:Optional[int]=1200,
+           height:Optional[int]=1000,
+           return_fig:Optional[bool]=False
+    ) -> None:
     r"""
     Sankey plot of celltype
     
@@ -554,6 +570,16 @@ def Sankey(matching_table:pd.DataFrame,
         font size in plot
     font_color
         font color in plot
+    save_name
+        save file name (None for not save)
+    format
+        save picture format (see https://plotly.com/python/static-image-export/ for more details)
+    width
+        save picture width
+    height
+        save picture height
+    return_fig
+        if return plotly figure
     """
     source, target, value = [], [], []
     label_ref = [a + f'_{prefix[0]}' for a in matching_table.columns.to_list()]
@@ -568,30 +594,37 @@ def Sankey(matching_table:pd.DataFrame,
                 source.append(label2index[ref])
                 value.append(int(matching_table.iloc[i,j]))
 
-    fig = go.Figure(data=[go.Sankey(
-        node = dict(
-          pad = 50,
-          thickness = 50,
-          line = dict(color = "green", width = 0.5),
-          label = label_all,
-          color = color
-        ),
-        link = dict(
-          source = source, # indices correspond to labels, eg A1, A2, A1, B1, ...
-          target = target,
-          value = value
-      ))],layout=go.Layout(autosize=False, width=layout[0], height=layout[1])
+    fig = go.Figure(
+                    data=[go.Sankey(
+                                    node = dict(pad = 50,
+                                                thickness = 50,
+                                                line = dict(color = "green", width = 0.5),
+                                                label = label_all,
+                                                color = color),
+                                    link = dict(source = source, # indices correspond to labels, eg A1, A2, A1, B1, ...
+                                                target = target,
+                                                value = value)
+                                    )
+                        ],
+                    layout=go.Layout(autosize=False, width=layout[0], height=layout[1])
                    )
 
     fig.update_layout(title_text=title, font_size=font_size, font_color=font_color)
     fig.show()
+    if save_name != None:
+        fig.write_image(save_name + f'.{format}', width=width, height=height)
+    if return_fig:
+        return fig
     
 
 def multi_Sankey(matching_tables:List[pd.DataFrame],
                 color:Optional[List[str]]='random',
                 title:Optional[str]='Sankey plot',
                 layout:Optional[List[int]]=[1300,900],
-                day:Optional[float]=11.5):
+                day:Optional[float]=0,
+                save_name:Optional[str]=None,
+                format:Optional[str]='svg',
+    ) -> None:
     r"""
     Sankey plot of celltype in multi datasets
     
@@ -600,13 +633,17 @@ def multi_Sankey(matching_tables:List[pd.DataFrame],
     matching_tables
         list of matching table
     color
-        color of node
+        how to color the nodes, 'random' for random color, 'celltype' for color by celltype
     title
         plot title
     layout
         layout size of picture
     day
-        start day of dataset
+        start day of dataset for temporal order
+    save_name
+        save file name (None for not save)
+    format
+        saved picture format (see https://plotly.com/python/static-image-export/ for more details)
     """
     mappings = len(matching_tables) + 1
     prefixes = [day + i for i in range(mappings)]
@@ -615,7 +652,7 @@ def multi_Sankey(matching_tables:List[pd.DataFrame],
         label_ref = [a + f'_{prefixes[i]}' for a in matching_table.columns.to_list()]
         label_query = [a + f'_{prefixes[i+1]}' for a in matching_table.index.to_list()]
         # label_all.add(label_ref)
-        for i in label_ref+label_query:
+        for i in label_ref + label_query:
             label_all.add(i) 
     label2index = dict(zip(label_all, list(range(len(label_all)))))
     
@@ -628,24 +665,83 @@ def multi_Sankey(matching_tables:List[pd.DataFrame],
                     value.append(int(matching_table.iloc[i,j]))
                     
     if color == 'random':
-        color = [get_color()]*matching_tables[0].shape[0]
+        color = [get_color()] * matching_tables[0].shape[0]
         for matching_table in matching_tables:
-            color += [get_color()]*matching_table.shape[1]
+            color += [get_color()] * matching_table.shape[1]
+    elif color == 'celltype':
+        pass
 
-    fig = go.Figure(data=[go.Sankey(
-        node = dict(
-          pad = 50,
-          thickness = 50,
-          line = dict(color="green", width=0.5),
-          label = list(label_all),
-          color = color
-        ),
-        link = dict(
-          source = source, # indices correspond to labels, eg A1, A2, A1, B1, ...
-          target = target,
-          value = value
-      ))],layout=go.Layout(autosize=False, width=layout[0], height=layout[1])
+    fig = go.Figure(
+                    data=[go.Sankey(node = dict(
+                                                pad = 50,
+                                                thickness = 50,
+                                                line = dict(color="green", width=0.5),
+                                                label = list(label_all),
+                                                color = color
+                                                ),
+                                    link = dict(source = source, # indices correspond to labels, eg A1, A2, A1, B1, ...
+                                                target = target,
+                                                value = value)
+                                    )
+                          ],
+                    layout=go.Layout(autosize=False, width=layout[0], height=layout[1])
                    )
 
     fig.update_layout(title_text=title, font_size=10)
+    if save_name != None:
+        fig.write_image(save_name + f'.{format}', width=layout[0], height=layout[1])
     fig.show()
+    
+
+def matching_2d(matching:np.ndarray,
+                ref:AnnData,
+                src:AnnData,
+                biology_meta:str,
+                topology_meta:str,
+                spot_size:Optional[int]=5,
+                title:Optional[str]="2D matching",
+                save:Optional[str]=None
+    ) -> None:
+    r"""
+    Visualize the matching result in 2D space
+    
+    Parameters
+    ----------
+    matching
+        matching result
+    ref
+        reference dataset
+    src
+        target dataset
+    biology_meta
+        celltype meta colname of adata.obs
+    topology_meta
+        region meta colname of adata.obs
+    spot_size
+        size of spot for visualization
+    title
+        plot title
+    save
+        save file name (None for not save)
+    """
+    src.obs['target_celltype'] = ref.obs.iloc[matching[1,:],:][biology_meta].to_list()
+    src.obs['target_region'] = ref.obs.iloc[matching[1,:],:][topology_meta].to_list()
+    src.obs["vis"] = 'celltype_false_region_false'
+    src.obs["vis"] = src.obs["vis"].astype('str')
+    
+    cell_type_match = src.obs[biology_meta] == src.obs['target_celltype']
+    region_match = src.obs[topology_meta] == src.obs['target_region']
+    cell_type_match = cell_type_match.to_numpy()
+    region_match = region_match.to_numpy()
+    
+    src.obs.loc[np.logical_and(cell_type_match, region_match), 'vis'] = 'celltype_true_region_true'
+    src.obs.loc[np.logical_and(~cell_type_match, region_match), 'vis'] = 'celltype_false_region_true'
+    src.obs.loc[np.logical_and(cell_type_match, ~region_match), 'vis'] = 'celltype_true_region_false'
+    
+    sc.pl.spatial(src, color="vis", spot_size=spot_size, title=title,
+                  palette=['red', 'purple', 'yellow','green'],
+                  save=save)
+    
+    del src.obs['target_celltype']
+    del src.obs['target_region']
+    del src.obs['vis']

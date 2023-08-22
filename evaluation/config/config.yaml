@@ -5,17 +5,17 @@ sample: 0
 
 use:
   - hyperparam
-  - noise
+  # - noise
   # - LGCN
 
 #--------------------------- Dataset ----------------------------#
 dataset:
   stereo_mouse_embryo: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S1_filter_labeled.h5ad",
                         "../data/stereo_seq/counts/E15.5/count_E15.5_E1S2_filter_labeled.h5ad"]
-  # visium_human_DLPFC: ["../data/visium/DLPFC/region_1/151674_labeled.h5ad",
-  #                     "../data/visium/DLPFC/region_1/151675_labeled.h5ad"]
-  # merfish_mouse_hypothalamic: ["../data/merfish/hypothalamic/merfish_layer2_labeled.h5ad",
-  #                             "../data/merfish/hypothalamic/merfish_layer1_labeled.h5ad"]
+  visium_human_DLPFC: ["../data/visium/DLPFC/region_1/151674_labeled.h5ad",
+                      "../data/visium/DLPFC/region_1/151675_labeled.h5ad"]
+  merfish_mouse_hypothalamic: ["../data/merfish/hypothalamic/merfish_layer2_labeled.h5ad",
+                              "../data/merfish/hypothalamic/merfish_layer1_labeled.h5ad"]
 
 noise_dataset:
   stereo_mouse_embryo: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S1_filter_labeled.h5ad",
@@ -38,61 +38,118 @@ SLAT_hyperparam:
   k_neighbors:
     default: 20
     # choices: [20]
-    choices: [5,10,20,30,40] # for knn
+    choices: [5, 10, 20, 30, 40] # for knn
   feature_type:
     default: 'dpca'
+    # choices: ['dpca']
     choices: ['PCA','Harmony','dpca']
+  feature_dim:
+    default: 50
+    # choices: [50]
+    choices: [5, 10, 30, 50, 100]
   epochs:
     default: 6
-    # choices: [6]
-    choices: [2, 4, 6, 8, 10]
+    choices: [6]
+    # choices: [2, 4, 6, 8, 10]
   LGCN_layer:
     default: 1
     # choices: [1]
-    choices: [0, 1, 2, 3, 4]
+    choices: [0, 1, 2, 3, 4, 5]
   mlp_hidden:
     default: 256
     # choices: [256]
-    choices: [64, 128, 256, 512, 1024]
+    choices: [16, 32, 64, 128, 256, 512, 1024, 2048]
   hidden_size:
     default: 2048
     # choices: [2048]
-    choices: [256, 512, 1024, 2048, 4096]
+    choices: [16, 32, 64, 128, 256, 512, 1024, 2048]
   alpha:
     default: 0.01
-    # choices: [0.01]
-    choices: [0.01, 0.05, 0.1, 0.2]
+    choices: [0.01]
+    # choices: [0.01, 0.05, 0.1, 0.2]
   anchor_scale:
     default: 0.8
-    # choices: [0.8]
+    choices: [0.8]
     choices: [0.6, 0.7, 0.8, 0.9, 1]
   lr_mlp:
     default: 0.0001
-    # choices: [0.0001, 0.00001, 0]
-    choices: [0.0001]
+    choices: [0.01, 0.1, 0.001, 0.0001]
+    # choices: [0.0001]
   lr_wd:
     default: 0.0001
-    # choices: [0.01, 0.001, 0.0001, 0.00001, 0]
+    # choices: [0.01, 0.001, 0.0001, 0.0]
     choices: [0.0001]
   lr_recon:
     default: 0.01
-    # choices: [0.01]
-    choices: [0.1, 0.01, 0.001, 0.0001]
+    choices: [0.01]
+    # choices: [0.1, 0.01, 0.001, 0.0]
   batch_d_per_iter:
     default: 7
-    # choices: [7]
-    choices: [1, 3, 5, 7, 9]
+    choices: [7]
+    # choices: [1, 3, 5, 7]
   batch_r_per_iter:
     default: 10
-    # choices: [10]
-    choices: [5, 10, 15, 20, 25]
+    choices: [10]
+    # choices: [5, 10, 15, 20]
   smooth:
-    default: 20
+    default: 5
     # choices: [20]
-    choices: [10, 20, 30, 40, 50]
+    choices: [1, 5, 10, 20]
+
+#------------------------ Harmony hyperparameters ---------------------#
+Harmony_hyperparam:
+  feature_dim:
+    default: 50
+    choices: [10, 30, 50, 100]
+  theta:
+    default: 2
+    choices: [0, 1, 2, 3, 4]
+  lambda:
+    default: 1
+    choices: [0.1, 0.5, 1, 2, 4]
+
+#------------------------ Seurat hyperparameters ---------------------#
+Seurat_hyperparam:
+  anchor_feature:
+    default: 2000
+    choices: [1000, 2000, 3000, 5000, 8000, 10000]
+  dim:
+    default: 30
+    choices: [10, 30, 50, 100]
+  k_anchor:
+    default: 5
+    choices: [3, 5, 7, 9]
+  k_filter:
+    default: 200
+    choices: [50, 100, 200, 300]
+  k_score:
+    default: 50
+    choices: [10, 30, 50, 100]
+
+#------------------------ STAGATE hyperparameters ---------------------#
+STAGATE_hyperparam:
+  hidden_dim1:
+    default: 512
+    choices: [256, 512, 1024, 2048]
+  hidden_dim2:
+    default: 30
+    choices: [10, 30, 50, 100]
+  n_epochs:
+    default: 1000
+    choices: [100, 500, 1000, 2000]
+  lr:
+    default: 0.001
+    choices: [0.1, 0.01, 0.001, 0.0001]
+
+#------------------------ PASTE hyperparameters ---------------------#
+PASTE_hyperparam:
+  alpha:
+    default: 0.1
+    choices: [0, 0.1, 0.2, 0.4, 0.8, 1]
+
 
 #------------------------ LGCN hyperparameters ------------------------#
-LGCN__hyperparam:
+LGCN_hyperparam:
   LGCN_layer: 
     default: 1
     choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]

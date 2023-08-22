@@ -5,7 +5,6 @@ from functools import reduce
 from operator import add
 from pathlib import Path
 
-import parse
 import numpy as np
 
 
@@ -50,13 +49,15 @@ def seed2range(config):
     for key, val in config.items():
         if isinstance(val, dict):
             seed2range(val)
-        elif key.endswith("seed") and val != 0:
-            config[key] = range(val)
+        elif key.endswith("seed") and isinstance(val, int):
+            if val > 0:
+                config[key] = range(val) 
 
 
 def target_directories(config,
                        sample:int = 0,
-                       hyperparameter:str = 'SLAT_hyperparam'):
+                       hyperparameter:str = 'SLAT_hyperparam',
+                       method:str = 'SLAT'):
     r"""
     Resolve snakemake config to str
     
@@ -68,12 +69,11 @@ def target_directories(config,
         number of rules to sample
     hyperparameter
         which hyperparameter to use
+    method
+        which method to evaluate
     """
     np.random.seed(seed=0)
-    seed2range(config)
-
     dataset = config["dataset"].keys()
-    
     data_conf = config["datasize"] or {}
     data_conf = expand(
         conf_expand_pattern(data_conf, placeholder="default"),
@@ -86,12 +86,14 @@ def target_directories(config,
         **hyperparam_conf
     )
     
-    seed = config["seed"] 
+    seed2range(config)
+    seed = config["seed"] if method != 'Seurat' else [0]
     
     pool = expand(
-        "results/{dataset}/{data_conf}/{hyperparam_conf}/seed:{seed}",
+        "results/{dataset}/{data_conf}/{method}/{hyperparam_conf}/seed:{seed}",
         dataset=dataset,
         data_conf=data_conf,
+        method=method,
         hyperparam_conf=hyperparam_conf,
         seed=seed
     )
@@ -100,7 +102,7 @@ def target_directories(config,
 
 def target_files(directories):
     r"""
-    Check if tagert file exist, other return them
+    Check if target file exist, other return them
     
     Parameters
     ----------

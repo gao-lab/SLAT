@@ -13,6 +13,9 @@ targets = {
     ],
     "build_3d": [
         expand("multi/build_3d.csv"),
+    ],
+    "perturb": [
+        expand("perturb/benchmark_purterb.csv"),
     ]
 }
 
@@ -38,12 +41,18 @@ module build_3d:
     snakefile: "build_3d.smk"
     config: config
 
+module perturb:
+    snakefile: "perturb.smk"
+    config: config
+
 use rule * from benchmark as benchmark_*
 use rule * from split_data as split_data_*
 use rule * from build_3d as build_3d_*
+use rule * from perturb as perturb_*
 
 localrules: link_data
 localrules: benchmark_summarize
 localrules: split_data_summarize
 localrules: build_3d_summarize
+localrules: perturb_summarize
 

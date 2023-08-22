@@ -2,27 +2,23 @@ __default__:
   jobname: "SLAT-{rule}"
   output: ".slurm/{rule}.out"
   error: ".slurm/{rule}.err"
-  account: bitcap
-  partition: gpu32
-  gres: ""
+  account: gglab
+  partition: cpu2
   n_node: 1
   n_task: 1
   n_cpu: "{threads}"
+  gres: ""
+  # gres: "--gres=gpu:1"
+
+# data2input:
+#   partition: gpu32
+#   gres: "--gres=gpu:1"
+
+run_SLAT_dpca:
+  partition: gpu322temp
   gres: "--gres=gpu:1"
 
-data2input:
-  partition: gpu32
-  gres: "--gres=gpu:1"
-
-run_SLAT:
-  partition: gpu32
-  gres: "--gres=gpu:1"
-
-run_SLAT_noise:
-  partition: gpu32
-  gres: "--gres=gpu:1"
-
-run_SLAT_harmony:
+run_SLAT_dpca_one2many:
   partition: gpu32
   gres: "--gres=gpu:1"
 
@@ -31,9 +27,13 @@ run_STAGATE:
   gres: "--gres=gpu:1"
 
 run_PASTE:
-  partition: gpu32
+  partition: gpu322temp
   gres: "--gres=gpu:1"
 
-run_Seurat:
-  partition: gpu32
-  gres: "--gres=gpu:1"
+# run_PASTE2:
+#   partition: gpu1
+#   gres: "--gres=gpu:1"
+
+# run_Seurat:
+#   partition: gpu32
+#   gres: "--gres=gpu:1"

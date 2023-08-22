@@ -4,7 +4,7 @@ Extra metrics for evaluating the performance
 
 rule egde_socre:
     input:
-        graphs="{path}/SLAT/graph.pkl",
+        graphs="{path}/SLAT_dpca/graph.pkl",
         matching="{path}/{method}/matching.csv",
         metrics="{path}/{method}/metrics.yaml",
         notebook="workflow/notebooks/edge_score.ipynb",

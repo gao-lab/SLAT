@@ -178,12 +178,13 @@ def run_SLAT(features:List,
 
 def spatial_match(embds:List[torch.Tensor],
                   reorder:Optional[bool]=True,
-                  top_n:Optional[int]=20,
                   smooth:Optional[bool]=True,
                   smooth_range:Optional[int]=20,
                   scale_coord:Optional[bool]=True,
                   adatas:Optional[List[AnnData]]=None,
-                  verbose:Optional[bool]=False
+                  return_euclid:Optional[bool]=False,
+                  verbose:Optional[bool]=False,
+                  get_null_distri:Optional[bool]=False
     )-> List[Union[np.ndarray,torch.Tensor]]:
     r"""
     Use embedding to match cells from different datasets based on cosine similarity
@@ -194,8 +195,6 @@ def spatial_match(embds:List[torch.Tensor],
         list of embeddings
     reorder
         if reorder embedding by cell numbers
-    top_n
-        return top n of cosine similarity
     smooth
         if smooth the mapping by Euclid distance
     smooth_range
@@ -206,6 +205,8 @@ def spatial_match(embds:List[torch.Tensor],
         list of adata object
     verbose
         if print log
+    get_null_distri
+        if get null distribution of cosine similarity
     
     Note
     ----------
@@ -226,6 +227,15 @@ def spatial_match(embds:List[torch.Tensor],
     else:
         embd0 = embds[0]
         embd1 = embds[1]
+        
+    if get_null_distri:
+        embd0 = torch.tensor(embd0)
+        embd1 = torch.tensor(embd1)
+        sample1_index = torch.randint(0, embd0.shape[0], (1000,))
+        sample2_index = torch.randint(0, embd1.shape[0], (1000,))
+        cos = torch.nn.CosineSimilarity(dim=1)
+        null_distri = cos(embd0[sample1_index], embd1[sample2_index])
+
     index = faiss.index_factory(embd1.shape[1], "Flat", faiss.METRIC_INNER_PRODUCT)
     embd0_np = embd0.detach().cpu().numpy() if torch.is_tensor(embd0) else embd0
     embd1_np = embd1.detach().cpu().numpy() if torch.is_tensor(embd1) else embd1
@@ -234,10 +244,9 @@ def spatial_match(embds:List[torch.Tensor],
     faiss.normalize_L2(embd0_np)
     faiss.normalize_L2(embd1_np)
     index.add(embd0_np)
-    distance, order = index.search(embd1_np, top_n)
+    similarity, order = index.search(embd1_np, smooth_range)
     best = []
     if smooth and adatas != None:
-        smooth_range = min(smooth_range, top_n)
         if verbose:
             print('Smoothing mapping, make sure object is in same direction')
         if scale_coord:
@@ -247,14 +256,46 @@ def spatial_match(embds:List[torch.Tensor],
             for i in range(2):
                     adata1_coord[:,i] = (adata1_coord[:,i]-np.min(adata1_coord[:,i]))/(np.max(adata1_coord[:,i])-np.min(adata1_coord[:,i]))
                     adata2_coord[:,i] = (adata2_coord[:,i]-np.min(adata2_coord[:,i]))/(np.max(adata2_coord[:,i])-np.min(adata2_coord[:,i]))
+        dis_list = []
         for query in range(embd1_np.shape[0]):
             ref_list = order[query, :smooth_range]
-            dis = euclidean_distances(adata2_coord[query,:].reshape(1, -1), 
+            dis = euclidean_distances(adata2_coord[query,:].reshape(1, -1),
                                       adata1_coord[ref_list,:])
+            dis_list.append(dis)
             best.append(ref_list[np.argmin(dis)])
     else:
         best = order[:,0]
-    return np.array(best), order, distance
+
+    if return_euclid and smooth and adatas != None:
+        dis_array = np.squeeze(np.array(dis_list))
+        if get_null_distri:
+            return np.array(best), order, similarity, dis_array, null_distri
+        else:
+            return np.array(best), order, similarity, dis_array
+    else:
+        return np.array(best), order, similarity
+    
+    
+def probabilistic_match(cos_cutoff:float=0.6, euc_cutoff:int=5, **kargs)-> List[List[int]]:
+    
+    best, index, similarity, eucli_array, null_distri = \
+        spatial_match(**kargs, return_euclid=True, get_null_distri=True)
+    # filter the cosine similarity via p_value
+    # mask1 = similarity > cos_cutoff
+    null_distri = np.sort(null_distri)
+    p_val = 1 - np.searchsorted(null_distri, similarity) / null_distri.shape[0]
+    mask1 = p_val < 0.05
+    
+    # filter the euclidean distance
+    sorted_indices = np.argpartition(eucli_array, euc_cutoff, axis=1)[:, :euc_cutoff]
+    mask2 = np.full(eucli_array.shape, False, dtype=bool)
+    mask2[np.arange(eucli_array.shape[0])[:, np.newaxis], sorted_indices] = True
+    
+    mask_mat = np.logical_and(mask1, mask2)
+    filter_list = [row[mask].tolist() for row, mask in zip(index, mask_mat)]
+    matching = [ [i,j] for i,j in zip(np.arange(index.shape[0]), filter_list) ]
+
+    return matching
 
 
 def run_SLAT_multi(adatas:List[AnnData],

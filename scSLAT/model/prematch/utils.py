@@ -1,7 +1,12 @@
-from typing import List
-from scipy.spatial import Delaunay
-import numpy as np
+from typing import List, Optional
 from itertools import chain
+import math
+
+import torch
+import numpy as np
+from scipy.spatial import Delaunay
+import scipy
+from anndata import AnnData
 
 def alpha_shape(points, alpha, only_outer=True)->List:
     """
@@ -125,3 +130,45 @@ def rotate_via_numpy(xy, radians)->np.ndarray:
     j = np.matrix([[c, s], [-s, c]])
     m = np.dot(j, xy.T).T
     return np.array(m)
+
+
+def perturb_data(adata:AnnData,
+                 noise:Optional[str]='nb',
+                 inverse_noise:Optional[float]=5
+    ) -> AnnData:
+    r"""
+    Add noise to the count matrix.
+    
+    Parameters
+    ----------
+    adata
+        Annotated data matrix.
+    noise
+        Type of noise to add. Default is `nb` for negative binomial noise.
+    inverse_noise
+        Inverse of noise. Default is 5.
+        
+    Return
+    ----------
+    Perturbed AnnData object.
+    
+    Note
+    ----------
+    The raw count matrix is stored in `adata.layers["counts"]`.
+    """
+    if isinstance(adata.X, scipy.sparse.csr_matrix) or \
+        isinstance(adata.X, scipy.sparse.csc_matrix) or \
+        isinstance(adata.X, scipy.sparse.coo_matrix):
+        adata.X = adata.X.toarray()
+        
+    if inverse_noise > 10000:
+        print(f'Warning: inverse_noise is too large with {inverse_noise}. Skip add noise.')
+        return None
+
+    mu = torch.tensor(adata.X)
+    if noise.lower() == 'poisson':
+        adata.X = torch.distributions.poisson.Poisson(mu).sample().numpy()
+    elif noise.lower() == 'nb':
+        adata.X = torch.distributions.negative_binomial.NegativeBinomial(inverse_noise,logits=(mu.log()-math.log(inverse_noise))).sample().numpy()
+    else:
+        raise NotImplementedError(f'Unknown noise type {noise}. Supported noise types are `poisson` and `nb`.')

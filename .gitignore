@@ -6,8 +6,10 @@
 *.pth
 *.zip
 *.csv
+*.txt
 *.rds
 *.pickle
+*.pkl
 *.RData
 *.Rhistory
 *.pdf
@@ -22,6 +24,7 @@
 *.png
 *.gz
 *.whl
+*.html
 
 # folder
 **/conda/

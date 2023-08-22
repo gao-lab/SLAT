@@ -6,15 +6,49 @@ sample: 0
 fix_sample: True
 
 use:
-  - benchmark
-  - split_data
-  - build_3d
+  # - benchmark
+  - perturb
+  # - split_data
+  # - build_3d
 
 #-------------------------------- Dataset ----------------------------------#
 dataset:
   visium_human_DLPFC: ["../data/visium/DLPFC/region_1/151674_labeled.h5ad","../data/visium/DLPFC/region_1/151675_labeled.h5ad"]
   merfish_mouse_hypothalamic: ["../data/merfish/hypothalamic/merfish_layer1_labeled.h5ad","../data/merfish/hypothalamic/merfish_layer2_labeled.h5ad"]
   stereo_mouse_embryo: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S1_filter_labeled.h5ad","../data/stereo_seq/counts/E15.5/count_E15.5_E1S2_filter_labeled.h5ad"]
+
+# extra benchmark dataset
+# visium
+  # visium_human_DLPFC_s1_ab: ["../data/visium/DLPFC/sample1/151507_labeled.h5ad","../data/visium/DLPFC/sample1/151508_labeled.h5ad"]
+  # visium_human_DLPFC_s1_bc: ["../data/visium/DLPFC/sample1/151508_labeled.h5ad","../data/visium/DLPFC/sample1/151509_labeled.h5ad"]
+  # visium_human_DLPFC_s1_cd: ["../data/visium/DLPFC/sample1/151509_labeled.h5ad","../data/visium/DLPFC/sample1/151510_labeled.h5ad"]
+  # visium_human_DLPFC_s2_ab: ["../data/visium/DLPFC/sample2/151669_labeled.h5ad","../data/visium/DLPFC/sample2/151670_labeled.h5ad"]
+  # visium_human_DLPFC_s2_bc: ["../data/visium/DLPFC/sample2/151670_labeled.h5ad","../data/visium/DLPFC/sample2/151671_labeled.h5ad"]
+  # visium_human_DLPFC_s2_cd: ["../data/visium/DLPFC/sample2/151671_labeled.h5ad","../data/visium/DLPFC/sample2/151672_labeled.h5ad"]
+  # visium_human_DLPFC_s3_ab: ["../data/visium/DLPFC/sample3/151673_labeled.h5ad","../data/visium/DLPFC/sample3/151674_labeled.h5ad"]
+  # visium_human_DLPFC_s3_bc: ["../data/visium/DLPFC/sample3/151674_labeled.h5ad","../data/visium/DLPFC/sample3/151675_labeled.h5ad"]
+  # visium_human_DLPFC_s3_cd: ["../data/visium/DLPFC/sample3/151675_labeled.h5ad","../data/visium/DLPFC/sample3/151676_labeled.h5ad"]
+
+  # # merfish
+  # merfish_mouse_hypothalamic_b0b1: ["../data/merfish/hypothalamic/merfish_batch0_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch1_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b1b2: ["../data/merfish/hypothalamic/merfish_batch1_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch2_labeled.h5ad"] # which we used in the paper
+  # merfish_mouse_hypothalamic_b2b3: ["../data/merfish/hypothalamic/merfish_batch2_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch3_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b3b4: ["../data/merfish/hypothalamic/merfish_batch3_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch4_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b4b5: ["../data/merfish/hypothalamic/merfish_batch4_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch5_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b5b6: ["../data/merfish/hypothalamic/merfish_batch5_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch6_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b6b7: ["../data/merfish/hypothalamic/merfish_batch6_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch7_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b7b8: ["../data/merfish/hypothalamic/merfish_batch7_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch8_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b8b9: ["../data/merfish/hypothalamic/merfish_batch8_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch9_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b9b10: ["../data/merfish/hypothalamic/merfish_batch9_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch10_labeled.h5ad"]
+  # merfish_mouse_hypothalamic_b10b11: ["../data/merfish/hypothalamic/merfish_batch10_labeled.h5ad","../data/merfish/hypothalamic/merfish_batch11_labeled.h5ad"]
+
+  # # stereo-seq
+  # stereo_mouse_embryo_s1s2: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S1_filter_labeled.h5ad","../data/stereo_seq/counts/E15.5/count_E15.5_E1S2_filter_labeled.h5ad"]
+  # stereo_mouse_embryo_s3s4: ["../data/stereo_seq/counts/E15.5/count_E15.5_E1S3_filter_labeled.h5ad","../data/stereo_seq/counts/E15.5/count_E15.5_E1S4_filter_labeled.h5ad"]
+
+  # # heterogeneous
+  # stereo_seqfish_embryo_9.5: ["../data/stereo_seq/counts/E9.5/Stereo_filter_labeled.h5ad","../data/seqFISH/embryo/seqFISH_filter_labeled.h5ad"]
+
 
 dataset_3d:
   brain_1_ab: ["../data/visium/DLPFC/sample1/151507_preprocessed.h5ad", "../data/visium/DLPFC/sample1/151508_preprocessed.h5ad"]
@@ -27,12 +61,16 @@ dataset_3d:
   brain_3_bc: ["../data/visium/DLPFC/sample3/151674_preprocessed.h5ad", "../data/visium/DLPFC/sample3/151675_preprocessed.h5ad"]
   brain_3_cd: ["../data/visium/DLPFC/sample3/151675_preprocessed.h5ad", "../data/visium/DLPFC/sample3/151676_preprocessed.h5ad"]
 
+dataset_perturb:
+  visium_human_DLPFC: ["../data/visium/DLPFC/region_1/151674_labeled.h5ad","../data/visium/DLPFC/region_1/151675_labeled.h5ad"]
+
 #--------------------------------- Data size ------------------------------#
 datasize:
   cells:
     default: 0
-    # choices: [0]
-    choices: [0, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400] # for subsample
+    choices: [0]
+    # choices: [0, 25600]
+    # choices: [0, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400] # for subsample
     # choices: [4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 50000, 100000] # for runtime
     # choices: [0, 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 50000, 100000]
     
@@ -42,30 +80,37 @@ split_ratio: 0.5
 
 #--------------------------- Benchmark Methods -----------------------------#
 method:
-  # - PCA
   - Seurat
+  - Seurat_one2many
   - Harmony
-  # - SLAT_harmony
+  - Harmony_one2many
   - SLAT_dpca
-  # - SLAT
+  - SLAT_dpca_one2many
   - PASTE
   - STAGATE
+  - STAGATE_one2many
+  # - PASTE2
 
 method_3d:
   - Seurat
   - Harmony
-  # - SLAT_harmony
   - SLAT_dpca
-  # - SLAT
   - PASTE
   - STAGATE
 
 method_split:
-  # - PCA
   - Seurat
   - Harmony
-  # - SLAT_harmony
   - SLAT_dpca
-  # - SLAT
   - STAGATE
   - PASTE
+
+method_perturb:
+  - Seurat
+  - Harmony
+  - SLAT_dpca
+  - PASTE
+  - STAGATE
+
+#--------------------------- Perturb Settings -----------------------------#
+inverse_noise: [0.025, 0.05, 0.1, 0.2, 0.4, 0.8, 1.6, 3.2, 6.4, 12.8, 25.6, 100000000]

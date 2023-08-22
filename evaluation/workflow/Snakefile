@@ -7,8 +7,13 @@ base_config = {"dataset": config["dataset"], "timeout": config["timeout"]}
 
 
 targets = {
-    "hyperparam":["results/hyperparam.csv"],
-    "noise":["results/noise.csv"], 
+    "hyperparam":["results/hyperparam_slat.csv",
+                #   "results/hyperparam_harmony.csv",
+                #   "results/hyperparam_seurat.csv",
+                #   "results/hyperparam_stagate.csv",
+                #   "results/hyperparam_paste.csv",
+                  ],
+    # "noise":["results/noise.csv"],
     # "LGCN":["results/LGCN.csv"]
 }
 
@@ -35,4 +40,4 @@ use rule * from noise as noise_*
 # use rule * from LGCN as LGCN_*
 
 localrules: all
-localrules: link_datas, hyperparam_summarize, noise_summarize
+localrules: link_datas, hyperparam_summarize_slat, hyperparam_summarize_harmony, hyperparam_summarize_seurat, hyperparam_summarize_stagate, hyperparam_summarize_paste

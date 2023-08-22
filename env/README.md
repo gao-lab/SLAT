@@ -2,12 +2,12 @@
 If you want repeat our whole benchmark and evaluation workflow, please configure environment as follow.
 
 ## Python env
-First, you need to install extra Python packages such as:
+You can build the python env for snakemake workflow by `conda` or `mamba`. We recommend to use `mamba` to speed up the installation process.
 - snakemake
 
 ```bash
 mamba create -p ./conda python==3.8 -y && conda activate ./conda
-mamba install -c bioconda -c conda-forge snakemake==7.12.0 tabulate==0.8.10 -y
+mamba install -c bioconda -c conda-forge snakemake==7.12.0 tabulate==0.8.10 pandoc -y
 
 git clone git@github.com:gao-lab/SLAT.git
 cd SLAT
@@ -41,10 +41,10 @@ IRkernel::installspec(name = 'slat_r', displayname = 'slat_r')
 At last, please install all R packages we used from `renv.lock` (see [`renv`](https://rstudio.github.io/renv/articles/renv.html)).
 ```R
 install.packages('renv')
-install.packages('IRkernel')
+install.packages('IRkernel') # install IRkernel again inside renv env
 renv::restore()
 ```
 
 ## System env
 ### Singularity
-You also need install [`singularity`](https://docs.sylabs.io/guides/3.0/user-guide/index.html), because we use container to ensure the repeatability.
+You also need install [`singularity`](https://docs.sylabs.io/guides/3.0/user-guide/index.html), because we use container to ensure the repeatability of benchmark results.

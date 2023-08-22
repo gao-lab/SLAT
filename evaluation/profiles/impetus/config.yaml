@@ -3,8 +3,8 @@ cluster-config: profiles/impetus/impetus.yaml
 printshellcmds: true
 reason: true
 keep-going: true
-resources: gpu=1000
+resources: gpu=300
 rerun-incomplete: true
 # use-conda: true
-# use-singularity: true
-# singularity-args: " --nv"
+use-singularity: true
+singularity-args: " --nv"

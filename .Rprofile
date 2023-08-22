@@ -1,8 +1,15 @@
 library(tools)
 source(file_path_as_absolute("renv/activate.R"))
-# options(renv.config.pak.enabled=TRUE)
+lib_path <- file_path_as_absolute("conda/lib")
+Sys.setenv(LD_LIBRARY_PATH = paste(lib_path, Sys.getenv("LD_LIBRARY_PATH"), sep = ":"))
 library(reticulate)
 use_python(paste0(getwd(),"/conda/bin/python"))
+print(.libPaths())
+print(py_config())
+print(Sys.getenv("LD_LIBRARY_PATH"))
+
+import("scanpy")
+import("anndata")
 options(bitmapType = "cairo")
 
 

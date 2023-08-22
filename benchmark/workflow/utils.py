@@ -76,14 +76,14 @@ def target_directories(config, sample:int = 0):
         dataset = method_dataset[1]
         # print(method)
         # seed = 0 if method in ['Harmony', 'Seurat', 'PCA'] else config["seed"] # change seed strategy
-        seed =  config["seed"]
+        seed = config["seed"]
         
         data_conf = copy.deepcopy(config["datasize"]) or {}
         if dataset in ['visium_human_DLPFC']:
             data_conf['cells']['choices'] = list(filter(lambda x: int(x) < 3600, data_conf['cells']['choices'] ))
         if dataset in ['merfish_mouse_hypothalamic']:
                 data_conf['cells']['choices'] = list(filter(lambda x: int(x) < 7000, data_conf['cells']['choices'] )) 
-        if method == 'PASTE' and dataset == 'stereo_mouse_embryo':
+        if method in ['PASTE', 'PASTE2'] and 'stereo_mouse_embryo' in dataset:
             data_conf['cells']['choices'] = list(filter(lambda x: 0 < int(x) < 30001, data_conf['cells']['choices'] ))
         # if method == 'STAGATE' and dataset == 'stereo_mouse_embryo':
         #     data_conf['cells']['choices'] = list(filter(lambda x: 0 < int(x) < 2000000, data_conf['cells']['choices'] ))

@@ -1,7 +1,7 @@
 r"""
 Data preprocess and build graph
 """
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 import pandas as pd
 import numpy as np
@@ -66,8 +66,15 @@ def Cal_Spatial_Net(adata:AnnData,
 
 
 def scanpy_workflow(adata:AnnData,
-                    n_top_genes:Optional[int]=2500,
-                    n_comps:Optional[int]=50
+                    filter_cell:Optional[bool]=False,
+                    min_gene:Optional[int]=200,
+                    min_cell:Optional[int]=30,
+                    call_hvg:Optional[bool]=True,
+                    n_top_genes:Optional[Union[int, List]]=2500,
+                    batch_key:Optional[str]=None,
+                    n_comps:Optional[int]=50,
+                    viz:Optional[bool]=False,
+                    resolution:Optional[float]=0.8
     ) -> AnnData:
     r"""
     Scanpy workflow using Seurat HVG
@@ -76,10 +83,22 @@ def scanpy_workflow(adata:AnnData,
     ----------
     adata
         adata
+    filter_cell
+        whether to filter cells and genes
+    min_gene
+        min number of genes per cell
+    min_cell
+        min number of cells per gene
+    call_hvg
+        whether to call highly variable genes (only support seurat_v3 method)
     n_top_genes
-        n top genes
+        n top genes or gene list
     n_comps
         n PCA components
+    viz
+        whether to run visualize steps
+    resolution
+        resolution for leiden clustering (used when viz=True)
         
     Return
     ----------
@@ -87,11 +106,33 @@ def scanpy_workflow(adata:AnnData,
     """
     if 'counts' not in adata.layers.keys():
         adata.layers["counts"] = adata.X.copy()
-    if "highly_variable" not in adata.var_keys() and adata.n_vars > n_top_genes:
-        sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, flavor="seurat_v3")
-    sc.pp.normalize_total(adata)
+        
+    if filter_cell:
+        sc.pp.filter_cells(adata, min_genes=min_gene)
+        sc.pp.filter_genes(adata, min_cells=min_cell)
+
+    if call_hvg:
+        if isinstance(n_top_genes, int):
+            if adata.n_vars > n_top_genes:
+                sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, flavor="seurat_v3", batch_key=batch_key)
+            else:
+                adata.var['highly_variable'] = True
+                print("All genes are highly variable.")
+        elif isinstance(n_top_genes, list):
+            adata.var['highly_variable'] = False
+            n_top_genes = list(set(adata.var.index).intersection(set(n_top_genes)))
+            adata.var.loc[n_top_genes, 'highly_variable'] = True
+    else:
+        print("Skip calling highly variable genes.")
+    
+    sc.pp.normalize_total(adata, target_sum=1e4)
     sc.pp.log1p(adata)
-    sc.pp.scale(adata)
+    sc.pp.scale(adata, max_value=10)
     if n_comps > 0:
-        sc.tl.pca(adata, n_comps=n_comps, svd_solver="auto")
+        sc.tl.pca(adata, n_comps=n_comps, svd_solver="arpack")
+        
+    if viz:
+        sc.pp.neighbors(adata, n_neighbors=15, n_pcs=n_comps)
+        sc.tl.umap(adata)
+        sc.tl.leiden(adata, resolution=resolution)
     return adata
