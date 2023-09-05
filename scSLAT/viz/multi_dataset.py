@@ -225,7 +225,7 @@ class match_3D_multi():
             set2 = list(set(self.dataset_B[meta]))
             self.celltypes = set1 + [x for x in set2 if x not in set1]
             self.celltypes.sort() # make sure celltypes are in the same order
-            overlap = set2.intersection(set1)
+            overlap = set(set2).intersection(set1)
             print(f"dataset1: {len(set1)} cell types; dataset2: {len(set2)} cell types; \n\
                     Total :{len(self.celltypes)} celltypes; Overlap: {len(overlap)} cell types \n\
                     Not overlap :[{[y for y in (set1+set2) if y not in overlap]}]"
