@@ -462,9 +462,9 @@ class match_3D_celltype(match_3D_multi):
     highlight_cell
         color to highlight the cell
     meta
-        dataframe colname of meta, such as celltype
+        dataframe col name of meta, such as celltype
     expr
-        dataframe colname of gene expr
+        dataframe col name of gene expr
     subsample_size
         subsample size of matches
     reliability

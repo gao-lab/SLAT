@@ -25,6 +25,7 @@
 *.gz
 *.whl
 *.html
+*.DS_Store
 
 # folder
 **/conda/

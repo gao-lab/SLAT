@@ -1,13 +1,13 @@
 #-------------------------------- Global ----------------------------------#
 timeout: 24h
 timehold: 200h
-seed: 8
+seed: 1
 sample: 0
 fix_sample: True
 
 use:
-  # - benchmark
-  - perturb
+  - benchmark
+  # - perturb
   # - split_data
   # - build_3d
 

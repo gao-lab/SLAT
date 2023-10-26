@@ -3,7 +3,7 @@ __default__:
   output: ".slurm/{rule}.out"
   error: ".slurm/{rule}.err"
   account: gglab
-  partition: cpu2
+  partition: fat2
   n_node: 1
   n_task: 1
   n_cpu: "{threads}"
