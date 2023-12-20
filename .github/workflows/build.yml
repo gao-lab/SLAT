@@ -31,7 +31,7 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           pip install --upgrade pip
           pip install -e ".[docs, dev]"
-          pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
+          pip install pyg_lib torch_scatter==2.1.1 torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
       
       - name: Build documentation
         run: |

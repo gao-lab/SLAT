@@ -2,6 +2,14 @@
 
 ``SLAT`` has a wide range of application scenarios in spatial alignment, especially in heterogeneous alignment. We provide following tutorials for you to get started with it.
 
+## Pre-match (Recommended)
+We recommend you to pre-match your data before alignment, which can significantly improve the alignment performance.
+
+```{eval-rst}
+.. nbgallery::
+    tutorials/pre_match.ipynb
+```
+
 ## Basic Usage
 
 ### Two slices alignment
@@ -29,12 +37,4 @@ In this tutorial, we focus on finding dynamic regions in embryo development via 
 .. nbgallery::
     tutorials/cross_technology.ipynb
     tutorials/times_series.ipynb
-```
-
-## Pre-match (Optional)
-We show how does pre-match function work in this tutorial.
-
-```{eval-rst}
-.. nbgallery::
-    tutorials/pre_match.ipynb
 ```
