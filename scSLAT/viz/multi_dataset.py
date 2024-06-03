@@ -82,7 +82,7 @@ class build_3D():
         self.loc_list = []
         self.anno_list = []
         for adata in adatas:
-            loc = adata.obsm[spatial_key]
+            loc = adata.obsm[spatial_key].copy()
             if scale_coordinate:
                 for i in range(2):
                     loc[:,i] = (loc[:,i]-np.min(loc[:,i]))/(np.max(loc[:,i])-np.min(loc[:,i]))
