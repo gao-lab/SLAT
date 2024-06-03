@@ -90,6 +90,8 @@ class build_3D():
             self.loc_list.append(loc)
             self.anno_list.append(anno)
             
+        self.adatas = adatas
+        self.anno_key=anno_key
         self.celltypes = set(pd.concat(self.anno_list))
         self.subsample_size = subsample_size
             
@@ -130,6 +132,9 @@ class build_3D():
         ax = fig.add_subplot(111, projection='3d')
         ax.set_box_aspect([1, 1, height_scale * len(self.mappings)])
         # color by different cell types
+        
+        
+
         color = get_color(len(self.celltypes))
         c_map = {}
         for i, celltype in enumerate(self.celltypes):
@@ -137,10 +142,21 @@ class build_3D():
         for j, mapping in enumerate(self.mappings):
             print(f"Mapping {j}th layer ")
             # plot cells
-            for i, (layer, anno) in enumerate(zip(self.loc_list[j:j+2], self.anno_list[j:j+2])):
+            for i, (layer, anno,ad) in enumerate(zip(self.loc_list[j:j+2], self.anno_list[j:j+2],self.adatas[j:j+2])):
                 if i==0 and 0<j<len(self.mappings)-1:
                     continue
-                for cell_type in self.celltypes:
+                
+                ad.obs[self.anno_key]=ad.obs[self.anno_key].astype('category')
+                if '{}_colors'.format(self.anno_key) in ad.uns.keys():
+                    c_map=dict(zip(ad.obs[self.anno_key].cat.categories.tolist(),
+                                    ad.uns['{}_colors'.format(self.anno_key)]))
+                else:
+                    if len(ad.obs[self.anno_key].cat.categories)>28:
+                        c_map=dict(zip(ad.obs[self.anno_key].cat.categories,sc.pl.palettes.default_102))
+                    else:
+                        c_map=dict(zip(ad.obs[self.anno_key].cat.categories,sc.pl.palettes.zeileis_28))
+
+                for cell_type in ad.obs[self.anno_key].cat.categories:
                     slice = layer[anno == cell_type,:]
                     xs = slice[:,0]
                     ys = slice[:,1]
@@ -159,7 +175,8 @@ class build_3D():
 
         if hide_axis:
             plt.axis('off')
-        plt.show()
+        return ax
+        #plt.show()
 
 
 class match_3D_multi():
