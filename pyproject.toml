@@ -50,6 +50,7 @@ pynvml = "*"
 scikit-misc = "*"
 opencv-python = "*"
 harmonypy = "*"
+loguru = "*"
 
 torch = {version = ">=2.0.0"}
 torchvision = {version = "*"}
@@ -86,3 +87,6 @@ dev = ["pytest", "pytest-cov", "papermill", "ipython", "jupyter", "parse", "nbfo
 include = ["scSLAT"]
 exclude = ["**/conda", "**/__pycache__", "**/.**"]
 ignore = ["resource/"]
+
+[tool.poetry.scripts]
+install_pyg_dependencies = "scSLAT.utils:install_pyg_dep"
