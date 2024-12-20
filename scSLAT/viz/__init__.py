@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors
 
+from .multi_dataset import *  # noqa
+
 
 def hist(
     data, bins: Optional[int] = 100, cut: Optional[float] = 0.9, cut_height: Optional[int] = 200
