@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "scSLAT"
 packages = [{include = "scSLAT"}]
-version = "0.2.2"
+version = "0.3.0"
 description = "A graph deep learning based tool to align single cell spatial omics data"
 readme = "README.md"
 license = "MIT"
@@ -25,15 +25,17 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Bio-Informatics"
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-numpy = ">1.19"
-scipy = ">1.3, <1.9"
+python = ">=3.8"
+numpy = ">1.19, <2.0"
+scipy = ">1.3"
 pandas = ">1.1, <2.0"
-matplotlib = ">3.1.2, <3.7"
+matplotlib = ">3.1.2"
 seaborn = ">0.9"
 scikit-learn = ">0.21.2"
 anndata = ">0.9"
@@ -50,13 +52,12 @@ pynvml = "*"
 scikit-misc = "*"
 opencv-python = "*"
 harmonypy = "*"
-loguru = "*"
 
-torch = {version = ">=2.0.0"}
+torch = {version = ">=2.0, <2.4"}
 torchvision = {version = "*"}
 torchaudio = {version = "*"}
 harmony-pytorch = {version = "*"}
-torch-geometric = {version = ">=2.3.0"}
+torch_geometric = ">=2.3.0, <2.6"
 
 sphinx = {version="<=6.2.1", optional = true}
 sphinx-autodoc-typehints = {version="*", optional = true}
@@ -75,18 +76,32 @@ ipython = {version="*", optional = true}
 jupyter = {version="*", optional = true}
 parse = {version="*", optional = true}
 nbformat = {version="*", optional = true}
+pre-commit = {version = "*", optional = true}
 
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-copybutton", "sphinx-intl", "nbsphinx", "sphinx-rtd-theme", "sphinx_gallery",
         "jinja2", "myst-parser"]
-dev = ["pytest", "pytest-cov", "papermill", "ipython", "jupyter", "parse", "nbformat"]
+dev = ["pytest", "pytest-cov", "papermill", "ipython", "jupyter", "parse", "nbformat", "pre-commit"]
 
 
 [tool.pyright]
 include = ["scSLAT"]
 exclude = ["**/conda", "**/__pycache__", "**/.**"]
 ignore = ["resource/"]
+typeCheckingMode = "off"
+reportCallIssue = 'warning'
+
 
 [tool.poetry.scripts]
 install_pyg_dependencies = "scSLAT.utils:install_pyg_dep"
+
+
+[tool.black]
+line-length = 100
+
+[tool.flake8]
+max-line-length = 100
+
+[tool.isort]
+line_length = 100

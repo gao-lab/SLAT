@@ -1,17 +1,17 @@
-from typing import List, Optional
-from itertools import chain
 import math
+from itertools import chain
 
-import torch
 import numpy as np
-from scipy.spatial import Delaunay
 import scipy
+import torch
 from anndata import AnnData
+from scipy.spatial import Delaunay
 
-def alpha_shape(points, alpha, only_outer=True)->List:
+
+def alpha_shape(points: np.ndarray, alpha: float, only_outer=True) -> tuple:
     """
     Compute the alpha shape (concave hull) of a set of points.
-    
+
     Parameters
     ----------
     points
@@ -20,11 +20,11 @@ def alpha_shape(points, alpha, only_outer=True)->List:
         alpha value.
     only_outer
     boolean value to specify if we keep only the outer border or also inner edges.
-    
+
     Return
     ----------
     Set of (i,j) pairs representing edges of the alpha-shape. (i,j) are the indices in the points array.
-    
+
     Refer
     ----------
     https://stackoverflow.com/questions/50549128/boundary-enclosing-a-given-set-of-points
@@ -33,8 +33,7 @@ def alpha_shape(points, alpha, only_outer=True)->List:
 
     def add_edge(edges, i, j):
         """
-        Add an edge between the i-th and j-th points,
-        if not in the list already
+        Add an edge between the i-th and j-th points, if not in the list already
         """
         if (i, j) in edges or (j, i) in edges:
             # already added
@@ -67,14 +66,14 @@ def alpha_shape(points, alpha, only_outer=True)->List:
             add_edge(edges, ia, ib)
             add_edge(edges, ib, ic)
             add_edge(edges, ic, ia)
-    boundary = list(set(list(chain.from_iterable(list(edges)))))
+    boundary = list(set(list(chain.from_iterable(list(edges)))))  # noqa
     return boundary, edges, circum_r_list
 
 
 def _find_edges_with(i, edge_set):
-    i_first = [j for (x,j) in edge_set if x==i]
-    i_second = [j for (j,x) in edge_set if x==i]
-    return i_first,i_second
+    i_first = [j for (x, j) in edge_set if x == i]
+    i_second = [j for (j, x) in edge_set if x == i]
+    return i_first, i_second
 
 
 def _stitch_boundaries(edges):
@@ -86,7 +85,7 @@ def _stitch_boundaries(edges):
         boundary.append(edge0)
         last_edge = edge0
         while len(edge_set) > 0:
-            i,j = last_edge
+            i, j = last_edge
             j_first, j_second = _find_edges_with(j, edge_set)
             if j_first:
                 edge_set.remove((j, j_first[0]))
@@ -106,21 +105,21 @@ def _stitch_boundaries(edges):
     return boundary_lst
 
 
-def rotate_via_numpy(xy, radians)->np.ndarray:
+def rotate_via_numpy(xy: np.ndarray, radians: float) -> np.ndarray:
     """
     Use numpy to build a rotation matrix and take the dot product.
-    
+
     Parameters
     ----------
     xy
-        coordinate 
+        coordinate
     radians
         rotation radians
-        
+
     Return
     ----------
-    Rotated coordinate 
-        
+    Rotated coordinate
+
     Refer
     ----------
     https://gist.github.com/LyleScott/e36e08bfb23b1f87af68c9051f985302
@@ -132,13 +131,10 @@ def rotate_via_numpy(xy, radians)->np.ndarray:
     return np.array(m)
 
 
-def perturb_data(adata:AnnData,
-                 noise:Optional[str]='nb',
-                 inverse_noise:Optional[float]=5
-    ) -> AnnData:
+def perturb_data(adata: AnnData, noise: str = "nb", inverse_noise: float = 5) -> AnnData:
     r"""
     Add noise to the count matrix.
-    
+
     Parameters
     ----------
     adata
@@ -147,28 +143,38 @@ def perturb_data(adata:AnnData,
         Type of noise to add. Default is `nb` for negative binomial noise.
     inverse_noise
         Inverse of noise. Default is 5.
-        
+
     Return
     ----------
     Perturbed AnnData object.
-    
+
     Note
     ----------
     The raw count matrix is stored in `adata.layers["counts"]`.
     """
-    if isinstance(adata.X, scipy.sparse.csr_matrix) or \
-        isinstance(adata.X, scipy.sparse.csc_matrix) or \
-        isinstance(adata.X, scipy.sparse.coo_matrix):
+    if (
+        isinstance(adata.X, scipy.sparse.csr_matrix)
+        or isinstance(adata.X, scipy.sparse.csc_matrix)
+        or isinstance(adata.X, scipy.sparse.coo_matrix)
+    ):
         adata.X = adata.X.toarray()
-        
+
     if inverse_noise > 10000:
-        print(f'Warning: inverse_noise is too large with {inverse_noise}. Skip add noise.')
+        print(f"Warning: inverse_noise is too large with {inverse_noise}. Skip add noise.")
         return None
 
     mu = torch.tensor(adata.X)
-    if noise.lower() == 'poisson':
+    if noise.lower() == "poisson":
         adata.X = torch.distributions.poisson.Poisson(mu).sample().numpy()
-    elif noise.lower() == 'nb':
-        adata.X = torch.distributions.negative_binomial.NegativeBinomial(inverse_noise,logits=(mu.log()-math.log(inverse_noise))).sample().numpy()
+    elif noise.lower() == "nb":
+        adata.X = (
+            torch.distributions.negative_binomial.NegativeBinomial(
+                inverse_noise, logits=(mu.log() - math.log(inverse_noise))
+            )
+            .sample()
+            .numpy()
+        )
     else:
-        raise NotImplementedError(f'Unknown noise type {noise}. Supported noise types are `poisson` and `nb`.')
+        raise NotImplementedError(
+            f"Unknown noise type {noise}. Supported noise types are `poisson` and `nb`."
+        )

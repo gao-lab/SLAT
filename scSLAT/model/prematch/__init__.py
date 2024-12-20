@@ -1,2 +1,5 @@
-from .icp import *
-from .utils import *
+r"""
+Slice pre-match
+"""
+from .icp import *  # noqa
+from .utils import *  # noqa

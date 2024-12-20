@@ -1,21 +1,13 @@
 [![stars-badge](https://img.shields.io/github/stars/gao-lab/SLAT?logo=GitHub&color=yellow)](https://github.com/gao-lab/SLAT/stargazers)
-[![DOI](http://img.shields.io/badge/DOI-10.1038-B31B1B.svg)](https://doi.org/10.1038/s41467-023-43105-5)
-[![dev-badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/xiachenrui/bc835db052fde5bd731a09270b42006c/raw/slat_version.json)](https://gist.github.com/xiachenrui/bc835db052fde5bd731a09270b42006c)
-[![build-badge](https://github.com/gao-lab/SLAT/actions/workflows/build.yml/badge.svg)](https://github.com/gao-lab/SLAT/actions/workflows/build.yml)
-[![license-badge](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![docs-badge](https://readthedocs.org/projects/slat/badge/?version=latest)](https://slat.readthedocs.io/en/latest/?badge=latest)
 [![pypi-badge](https://img.shields.io/pypi/v/scslat)](https://pypi.org/project/scslat)
+[![Downloads](https://static.pepy.tech/badge/scSLAT)](https://pepy.tech/project/scSLAT)
+[![build-badge](https://github.com/gao-lab/SLAT/actions/workflows/build.yml/badge.svg)](https://github.com/gao-lab/SLAT/actions/workflows/build.yml)
+[![docs-badge](https://readthedocs.org/projects/slat/badge/?version=latest)](https://slat.readthedocs.io/en/latest/?badge=latest)
+[![license-badge](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
 # scSLAT: single cell spatial alignment tools
-
-<div align="center">
-
-[Installation](#Installation) • [Tutorial](#Tutorial) • [Publication](https://www.nature.com/articles/s41467-023-43105-5)
-
-</div>
-
-**scSLAT** package implements the **SLAT** (**S**patial **L**inked **A**lignment **T**ool) model to align single cell spatial omics data. For more details, please check out our [publication](https://www.nature.com/articles/s41467-023-43105-5).
+**scSLAT** package implements the **SLAT** (**S**patial **L**inked **A**lignment **T**ool) model to align single cell spatial omics data.
 
 ![Model architecture](docs/_static/Model.png)
 
@@ -30,7 +22,7 @@
 ├── benchmark/               # Benchmark pipeline
 ├── case/                    # Case studies in paper
 ├── docs/                    # Documentation files
-├── resource/                # Other useful resource 
+├── resource/                # Other useful resource
 ├── pyproject.toml           # Python package metadata
 └── README.md
 ```
@@ -43,38 +35,39 @@ Tutorial of `scSLAT` is [here](https://slat.readthedocs.io/en/latest/tutorials.h
 
 ## Installation
 
-### Docker
-Dockerfile of `scSLAT` is available at [`env/Dockerfile`](env/Dockerfile). You can also pull the docker image directly from [here](https://hub.docker.com/repository/docker/huhansan666666/slat) by:
-
-``` bash
-docker pull huhansan666666/slat:0.2.1
-```
-
 ### PyPI
-> [!NOTE]
+> **Note**
 > Installing `scSLAT` within a new [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) is recommended.
 
-First, we create a clean environment and install `scSLAT` from PyPI. Then we also need install dependencies for `pyg` manually. We default install with CUDA 11.7. Please refer [here](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html#quick-start) for CPU version or different CUDA versions.
+> **Warning**
+> Old NVIDIA driver may raise error.
 
-> [!WARNING]
-> old NVIDIA driver may raise error, please update NVIDIA driver to the latest version.
+First, we create a clean environment and install `scSLAT` from PyPI. Then we also need install dependencies for `pyg` manually via `install_pyg_dependencies`.
 
 ```bash
-conda create -n scSLAT python=3.8 -y && conda activate scSLAT
+conda create -n scSLAT python=3.11 -y && conda activate scSLAT
 pip install scSLAT
-python -c "import torch; print(torch.__version__)"
-pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.0.0+cu117.html  # replace torch and CUDA version to yours
+install_pyg_dependencies
+```
+
+### Docker
+You can pull the docker image directly from [Docker Hub](https://hub.docker.com/repository/docker/huhansan666666/slat) or refer to the [`Dockerfile`](Dockerfile) to build it.
+
+``` bash
+docker pull huhansan666666/slat:latest
 ```
 
 ### Development version
 For development purpose, clone this repo and install:
 
 ```bash
-git clone git@github.com:gao-lab/SLAT.git
-cd SLAT
+git clone git@github.com:gao-lab/SLAT.git && cd SLAT
 pip install -e ".[dev,docs]"
-pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.0.0+cu117.html
+install_pyg_dependencies
 ```
+
+### Conda (Ongoing)
+We plan to provide a conda package of `scSLAT` in the near future.
 
 
 ## Reproduce manuscript results

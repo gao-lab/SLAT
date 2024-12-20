@@ -1,8 +1,6 @@
 r"""
 Core functions of SLAT model
 """
-from .utils import *
-from .loaddata import load_anndata, load_anndatas
-from .preprocess import Cal_Spatial_Net, scanpy_workflow
-from .prematch import icp
-
+from .loaddata import load_anndata, load_anndatas  # noqa
+from .prematch import icp  # noqa
+from .preprocess import Cal_Spatial_Net, scanpy_workflow  # noqa

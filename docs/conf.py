@@ -4,9 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from docs.utils import _get_thumbnails
-
-copyright = 'Gao Lab@2022'
+copyright = 'Gao Lab@2024'
 author = 'Chen-rui Xia'
 
 

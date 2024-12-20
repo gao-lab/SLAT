@@ -2,15 +2,11 @@ r"""
 SLAT (Spatial-Linked Alignment Tool)
 """
 
-try:
-    from importlib.metadata import version
-except ModuleNotFoundError:
-    from pkg_resources import get_distribution
-    version = lambda name: get_distribution(name).version
+from importlib.metadata import version
 
-from . import viz
-from . import model
+from . import model  # noqa
+from . import viz  # noqa
 
 name = "scSLAT"
 __version__ = version(name)
-__author__ = 'Chen-Rui Xia'
+__author__ = "Chen-Rui Xia"

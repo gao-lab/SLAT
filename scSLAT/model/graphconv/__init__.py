@@ -1,4 +1,4 @@
 r"""
 Graph convolution network
 """
-from .combnet import CombUnweighted
+from .combnet import CombUnweighted  # noqa
