@@ -14,7 +14,7 @@ from anndata import AnnData
 from .color import godsnot_102, vega_10_scanpy, vega_20_scanpy, zeileis_28
 
 
-def get_color(n=1, cmap: str = "scanpy", seed: int = 0):
+def get_color(n:int = 1, cmap: str = "scanpy", seed: int = 0):
     r"""
     Get color
 
@@ -644,8 +644,6 @@ class match_3D_celltype(match_3D_multi):
         self,
         ax,
         show_error,
-        show_celltype,
-        default_color,
         line_width: float = 0.3,
         line_alpha: float = 0.7,
     ) -> None:

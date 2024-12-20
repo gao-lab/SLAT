@@ -7,7 +7,10 @@
 
 
 # scSLAT: single cell spatial alignment tools
+
 **scSLAT** package implements the **SLAT** (**S**patial **L**inked **A**lignment **T**ool) model to align single cell spatial omics data.
+
+Please check our paper ***Spatial-linked alignment tool (SLAT) for aligning heterogenous slices*** on [*Nature Communications*](https://www.nature.com/articles/s41467-023-43105-5).
 
 ![Model architecture](docs/_static/Model.png)
 
@@ -27,7 +30,7 @@
 └── README.md
 ```
 
-## Tutorial
+## [Tutorial](https://slat.readthedocs.io/en/latest/tutorials.html)
 Tutorial of `scSLAT` is [here](https://slat.readthedocs.io/en/latest/tutorials.html), if you have any question please open an issue on github
 
 <img src='docs/_static/imgalignment.gif' width='400'>
@@ -65,9 +68,6 @@ git clone git@github.com:gao-lab/SLAT.git && cd SLAT
 pip install -e ".[dev,docs]"
 install_pyg_dependencies
 ```
-
-### Conda (Ongoing)
-We plan to provide a conda package of `scSLAT` in the near future.
 
 
 ## Reproduce manuscript results

@@ -67,4 +67,4 @@ jobs:
           context: .
           dockerfile: ./Dockerfile
           push: true
-          tags: huhansan666666/decipher:latest
+          tags: huhansan666666/slat:latest
